@@ -2,6 +2,7 @@ package communication;
 
 import java.util.Arrays;
 
+
 public class Hosts {
 	public String[][] data = new String[][] {{null}};
 	

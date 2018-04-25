@@ -10,6 +10,16 @@ https://stackoverflow.com/questions/10131377/socket-programming-multiple-client-
 https://www.javatpoint.com/example-to-connect-to-the-mysql-database
 2.4. A Visual Guide to Layout Managers
 https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#grid
+2.5. Building a RESTful Web Service
+https://spring.io/guides/gs/rest-service/#initial
+2.6. Accessing data with MySQL
+https://spring.io/guides/gs/accessing-data-mysql
+2.7. Accessing Data with JPA
+https://spring.io/guides/gs/accessing-data-jpa/
+2.8. Java Apache HttpClient REST (RESTful) client examples
+https://alvinalexander.com/java/java-apache-httpclient-restful-client-examples
+2.9. JPA - Entity Relationships
+https://www.tutorialspoint.com/jpa/jpa_entity_relationships.htm
 3. ToDos
 *Premature optimization is the root of all evil*
 3.2. Proper encapsulation
@@ -22,3 +32,18 @@ https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#grid
 4.1.1. {c/s} - Sender: c for client and s for server
 4.1.2. {auth/stts/hsts/join/host/strt/over/turn} - operation type
 4.1.3. {data1, data2, ...} - data fields to be tranfered: stats, hosts and settings.
+
+org.springframework.boot
+spring-boot-starter-web
+
+com.h2database
+h2
+
+org.springframework.boot
+spring-boot-starter-data-jpa
+
+org.springframework.boot
+spring-boot-starter-test
+
+com.jayway.jsonpath
+json-path
