@@ -20,6 +20,15 @@ https://spring.io/guides/gs/accessing-data-jpa/
 https://alvinalexander.com/java/java-apache-httpclient-restful-client-examples
 2.9. JPA - Entity Relationships
 https://www.tutorialspoint.com/jpa/jpa_entity_relationships.htm
+2.10. Spring Boot + Spring Data JPA + Oracle example
+https://www.mkyong.com/spring-boot/spring-boot-spring-data-jpa-oracle-example/
+2.11. Spring Boot samples by Netgloo - git repository
+https://github.com/SpookyMask/spring-boot-samples
+2.12. 
+http://www.baeldung.com/the-persistence-layer-with-spring-and-jpa
+2.13. CrudRepository
+2.14. Json
+https://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webservice/
 3. ToDos
 *Premature optimization is the root of all evil*
 3.2. Proper encapsulation
@@ -48,5 +57,46 @@ spring-boot-starter-test
 com.jayway.jsonpath
 json-path
 6. git
+//Commit changes
 git add .
 git commit -m "message"
+
+//pull and push from and to the server
+git pull origin master
+git push origin master
+
+
+mysql -u root -p
+>>> root
+show databases;
+use db_snake;
+show tables;
+select * from users;
+truncate table;             //empty
+drop database db_snake;
+
+
+# Database
+spring.jpa.hibernate.ddl-auto=create
+db.driver: com.mysql.jdbc.Driver
+db.url: jdbc:mysql://localhost:8889/netgloo_blog
+db.username: root
+db.password: root
+
+# Hibernate
+hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+hibernate.show_sql: true
+hibernate.hbm2ddl.auto: update
+entitymanager.packagesToScan: netgloo
+
+
+
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/db_snake?createDatabaseIfNotExist=true
+spring.jpa.properties.hibernate.id.new_generator_mappings=false
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+spring.datasource.initialization-mode=always
+spring.jpa.hibernate.hbm2ddl.auto 
