@@ -29,6 +29,10 @@ http://www.baeldung.com/the-persistence-layer-with-spring-and-jpa
 2.13. CrudRepository
 2.14. Json
 https://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webservice/
+2.15. 
+http://www.baeldung.com/rest-template
+2.15.1. Logging required by RestTemplate
+http://commons.apache.org/proper/commons-logging/download_logging.cgi
 3. ToDos
 *Premature optimization is the root of all evil*
 3.2. Proper encapsulation
@@ -100,3 +104,5 @@ spring.jpa.hibernate.ddl-auto=create
 spring.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 spring.datasource.initialization-mode=always
 spring.jpa.hibernate.hbm2ddl.auto 
+
+https://itunes.apple.com/search?term=howling%2520wolf&entity=allArtist&limit=1

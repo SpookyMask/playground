@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.web.client.RestTemplate;
+
 public class ClientConfig {
 	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 3457 \nplayer_name = Newbie";
 	private static final Map<String, String> properties = new HashMap<>();
