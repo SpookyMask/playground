@@ -32,7 +32,7 @@ https://www.tutorialspoint.com/jpa/jpa_entity_relationships.htm
 4.1.1. {c/s} - Sender: c for client and s for server
 4.1.2. {auth/stts/hsts/join/host/strt/over/turn} - operation type
 4.1.3. {data1, data2, ...} - data fields to be tranfered: stats, hosts and settings.
-
+5. Dependencies
 org.springframework.boot
 spring-boot-starter-web
 
@@ -47,3 +47,6 @@ spring-boot-starter-test
 
 com.jayway.jsonpath
 json-path
+6. git
+git add .
+git commit -m "message"
