@@ -6,14 +6,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import snake.server.model.configs.Constants;
 
-@Entity
-public class Settings {
+public class GameInfo {
+		
+	public String hostName, name;
 	
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	public long id;
+	@JsonIgnore
+	public long startsTimeStamp;
+	
+	public long startsIn;
 	
 	public int sizeN = Constants.sizeN, sizeM = Constants.sizeM;
 	
@@ -22,8 +26,17 @@ public class Settings {
 	public int turnTimeMS = Constants.turnTimeMS;
 	
 	public int decreaseTimeMS = Constants.decreaseTimeMS;
-
-	@Transient
-	public int slot=0;
+	
+	public GameInfo(){
+	}
+	
+	public void setTimeStamp() {
+		startsTimeStamp = System.currentTimeMillis() + 500; 
+		startsIn = 500;
+	}
+	
+	public void updateStartIn() {
+		startsIn = startsTimeStamp - System.currentTimeMillis();
+	}
 	
 }

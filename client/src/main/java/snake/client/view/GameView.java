@@ -4,25 +4,28 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JFrame;
 
 import org.springframework.stereotype.Component;
-
-import snake.client.model.Game;
 import snake.client.model.comm.Settings;
 import snake.client.model.game.Position;
+import snake.client.model.game.Snake;
 
 @Component
 public class GameView extends JFrame implements KeyListener {
 	private static GameView view = new GameView();
-	private Game game;
+	public Snake player = null;
+	public Snake opponent = null;
+	public Set<Position> frogs = new HashSet<>();
 	
-	public GameView(){
+	private GameView(){
 		initGUI();
 	}
 	
-	public void initGUI() {
+	private void initGUI() {
 		setBackground(Color.WHITE);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setSize(200 , 450);
@@ -33,25 +36,20 @@ public class GameView extends JFrame implements KeyListener {
 	    setFocusTraversalKeysEnabled(false);
 	}
 	
-	public void newGame() {
-		Game ng = new Game(this, new Settings());
-		ng.run();
-	}
-	
 	public void paint(Graphics g) {
     	g.setColor(Color.WHITE);
         g.fillRect(0,0, 430, 430);
         
 	    g.setColor(Color.GREEN);
-	    for(Position p : game.frogs)
+	    for(Position p : frogs)
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
 	    g.setColor(Color.BLACK);
-	    for(Position p : game.player.getList())
+	    for(Position p : player.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
-	    if(game.opponent == null) return;
-	    for(Position p : game.opponent.getList())
+	    if(opponent == null) return;
+	    for(Position p : opponent.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
     }
 
@@ -59,13 +57,13 @@ public class GameView extends JFrame implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		//System.out.println("keyPressed");
         if(e.getKeyCode()== KeyEvent.VK_RIGHT)
-        	game.player.setDirection(0);
+        	player.setDir(0);
         else if(e.getKeyCode()== KeyEvent.VK_LEFT)
-        	game.player.setDirection(2);
+        	player.setDir(2);
         else if(e.getKeyCode()== KeyEvent.VK_DOWN)
-        	game.player.setDirection(1);
+        	player.setDir(1);
         else if(e.getKeyCode()== KeyEvent.VK_UP)
-        	game.player.setDirection(3);
+        	player.setDir(3);
 	}
 
 	@Override
@@ -73,34 +71,17 @@ public class GameView extends JFrame implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
-	public static void activate(Game game, int n, int m) {
+	public static void activate(Set<Position> frogs, Snake player, Snake opponent, int n, int m) {
 		if(view == null) view = new GameView();
-		view.game = game;
+		view.frogs = frogs;
+		view.player = player;
+		view.opponent = opponent;
 		view.setSize(n*20+20 , m*20+40);
-	}
-
-	public static void activate() {
-		if(view == null) view = new GameView();
 		view.setVisible(true);
-		view.game = new Game(new Settings());
-		view.game.setView(view);
-		view.game.start();
-	}	
+	}
 	
-	public int run() {
-		int i;
-		do {
-			try        
-	    	{
-	    	    Thread.sleep(1000);
-	    	} 
-	    	catch(InterruptedException ex) 
-	    	{
-	    	    Thread.currentThread().interrupt();
-	    	}
-	    	i = game.turn();
-		} while(i != -1);
-    	return -1;
+	public static GameView getInstance() {
+		return view;
 	}
 
 }

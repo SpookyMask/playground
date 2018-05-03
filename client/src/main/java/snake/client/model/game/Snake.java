@@ -2,6 +2,8 @@ package snake.client.model.game;
 
 import java.util.LinkedList;
 
+import snake.client.controller.MultiplayerController;
+
 public class Snake {
 	public LinkedList<Position> body = new LinkedList<>();
     private int direction = 0;
@@ -53,12 +55,13 @@ public class Snake {
         body.remove();
     }
 
-    public void setDirection(int d) {
+    public void setDir(int d) {
     	if( (d == 0 && last_direction == 2 ) ||
     		(d == 1 && last_direction == 3 ) ||
     		(d == 2 && last_direction == 0 ) ||
     		(d == 3 && last_direction == 1 ) )
     		return;	//Can't move backwards!
+    	MultiplayerController.getInstance().onDirUpdate(direction);
     	direction = d;
     }
     

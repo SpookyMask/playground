@@ -11,16 +11,11 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import snake.server.model.comm.Game;
-
 @Entity
 public class User {
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	public int id;
 
-	@Column(unique=false, nullable=false, length=20)
+	@Id
+	@Column(unique=true, nullable=false, length=20)
 	public String name;
 	
 	public int wins = 0;

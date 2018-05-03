@@ -33,6 +33,10 @@ https://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webserv
 http://www.baeldung.com/rest-template
 2.15.1. Logging required by RestTemplate
 http://commons.apache.org/proper/commons-logging/download_logging.cgi
+2.16. Timer Tutorial
+https://alvinalexander.com/source-code/java/java-timertask-timer-and-scheduleatfixedrate-example
+2.17. Spring RESTFul Client – RestTemplate Example
+https://howtodoinjava.com/spring/spring-restful/spring-restful-client-resttemplate-example/
 3. ToDos
 *Premature optimization is the root of all evil*
 3.2. Proper encapsulation
@@ -82,29 +86,30 @@ truncate table;             //empty
 drop database db_snake;
 
 
-# Database
-spring.jpa.hibernate.ddl-auto=create
-db.driver: com.mysql.jdbc.Driver
-db.url: jdbc:mysql://localhost:8889/netgloo_blog
-db.username: root
-db.password: root
-
-# Hibernate
-hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-hibernate.show_sql: true
-hibernate.hbm2ddl.auto: update
-entitymanager.packagesToScan: netgloo
+//Browser URLs for testing
+http://localhost:8080/stats?name=random
 
 
 
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-spring.datasource.username=root
-spring.datasource.password=root
-spring.datasource.url=jdbc:mysql://localhost:3306/db_snake?createDatabaseIfNotExist=true
-spring.jpa.properties.hibernate.id.new_generator_mappings=false
-spring.jpa.hibernate.ddl-auto=create
-spring.jpa.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
-spring.datasource.initialization-mode=always
-spring.jpa.hibernate.hbm2ddl.auto 
+//Maven dependency
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.46</version>
+</dependency>
 
-https://itunes.apple.com/search?term=howling%2520wolf&entity=allArtist&limit=1
+
+//Sample Code
+    @GetMapping("join")
+    public GameInfo join(@RequestParam(value="name") String name,
+  		                                 @RequestParam(value="host") String hostname) {
+    	GameInfo gInfo = null;
+    	if(LobbyController.hosts.containsKey(hostname)) {
+  		    gInfo = new GameInfo(new Host(hostname, LobbyController.hosts.get(hostname).settings), name);
+  		    Game game = new Game(gInfo);
+  		    runningGames.put(name, game);
+  		    runningGames.put(hostname, game);
+  		    System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        }
+  	    return gInfo;
+    }

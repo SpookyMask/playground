@@ -2,25 +2,14 @@ package snake.client.view;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import snake.client.Application;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.HostsView;
-import snake.client.model.comm.Settings;
-import snake.client.model.comm.Stats;
-import snake.client.model.configs.ClientConfig;
+import snake.client.controller.MenuController;
 
 @Component
 public class MenuView extends JFrame {
@@ -35,23 +24,12 @@ public class MenuView extends JFrame {
 			if(e.getActionCommand().equals("single")) {
 				// Start Single Player Game
 				setVisible(false);
-				GameView.activate();
+				MenuController.getInstance().onSingleplayerClick();
 			} else if(e.getActionCommand().equals("connect")){
 				// Connect to the lobby
 				setVisible(false);
 				System.out.println("Connecting...");
-				String s = Application.serverAddress + "stats?name="+ClientConfig.getProperty("player_name");
-				Stats stats = Application.restTemplate.getForObject(s, Stats.class);
-//				HostsView hosts = Application.restTemplate.getForObject(
-//						Application.serverAddress + "/hosts", HostsView.class);
-//				HostsView hosts = new HostsView(new String[][] {});
-//				List<Host> hosts = Application.restTemplate.getForObject(
-//						Application.serverAddress + "/hosts", Host.class);
-				s = Application.serverAddress + "hosts";
-				ResponseEntity<Host[]> responseEntity = Application.restTemplate.getForEntity(s, Host[].class);
-				System.out.println(responseEntity);
-				Application.id = stats.id;
-			    LobbyView.activate(stats, responseEntity.getBody());
+				MenuController.getInstance().onConnectClick();
 				}
 			}
 	    };

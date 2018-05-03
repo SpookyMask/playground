@@ -13,7 +13,7 @@ import java.util.Map;
 import org.springframework.web.client.RestTemplate;
 
 public class ClientConfig {
-	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 8080 \nplayer_name = Newbie";
+	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 8080 \nplayer_name = random";
 	private static final Map<String, String> properties = new HashMap<>();
 	private static final Path file = Paths.get("config.txt");
 	

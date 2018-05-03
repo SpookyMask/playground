@@ -6,4 +6,6 @@ public class Constants {
 	public static boolean noBorder = true;
 	public static int turnTimeMS = 600;
 	public static int decreaseTimeMS = 2;
+	
+	public static long hostCheckInterval = 2000;
 }
