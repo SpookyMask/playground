@@ -16,16 +16,12 @@ public class MenuView extends JFrame {
 	public  static JButton connect;
 	
 	private MenuView(){
-		ActionAdapter buttonListener = null;
-	    buttonListener = new ActionAdapter() {
+		ActionAdapter buttonListener = new ActionAdapter() {
 	    	public void actionPerformed(ActionEvent e) {
-			if(e.getActionCommand().equals("single")) {
-				Status.action = Status.Actions.SINGLE;
-				System.out.println(Status.state + " " + Status.action);
-			} else if(e.getActionCommand().equals("connect")){
-				Status.action = Status.Actions.CONNECT;
-				System.out.println(Status.state + " " + Status.action);
-				}
+				if(e.getActionCommand().equals("single")) 
+					Status.action = Status.Actions.SINGLE;
+				else if(e.getActionCommand().equals("connect"))
+					Status.action = Status.Actions.CONNECT;
 			}
 	    };
 

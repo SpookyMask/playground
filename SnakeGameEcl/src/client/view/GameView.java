@@ -75,9 +75,9 @@ public class GameView extends JFrame implements KeyListener {
 	}
 	
 	//Multiplayer
-	public int run(int direction) {
+	public int run(int opp_direction) {
 		int hit = 0;
-		opponent.setDirection(direction);
+		opponent.setDirection(opp_direction);
 		
 		if(playerSlot == 0) {
 			hit = move(player);
@@ -94,9 +94,9 @@ public class GameView extends JFrame implements KeyListener {
 		Position p;
 		do{
 			p = Position.random();
-		} while( player.contains(p) ||
-				 (opponent != null && opponent.contains(p)) ||
-				 frogs.contains(p) );
+		} while( frogs.contains(p) ||
+				 player.contains(p) ||
+				 (opponent != null && opponent.contains(p)));
 		frogs.add(p);
 	}
 	

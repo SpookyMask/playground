@@ -48,6 +48,8 @@ http://commons.apache.org/proper/commons-logging/download_logging.cgi
 5. Dependencies
 org.springframework.boot
 spring-boot-starter-web
+6.
+grep --include=\*.{java} -rnw ' /home/sh_home/Documents/Kalin/Java/workspace/repository/' -e "gs-rest-service" 
 
 com.h2database
 h2
