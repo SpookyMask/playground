@@ -4,45 +4,44 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.http.ResponseEntity;
-
 import snake.client.Application;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Settings;
-import snake.client.model.comm.Stats;
-import snake.client.model.configs.ClientConfig;
+import snake.client.model.comm.GameInfo;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
-import snake.client.view.LobbyView;
 
 public class SingleplayerController extends Thread implements Controller {
 	private static SingleplayerController controller;
-	public GameView view;
-	int slot = 0;
-	Settings settings = null;
-	public Snake player = null;
-	public Snake opponent = null;
+	protected GameView view;
+	protected GameInfo gInfo;
+	protected Snake player = null;
+	protected Snake opponent = null;
 	public Set<Position> frogs = new HashSet<>();
+	protected int slot = 0;
+	protected int frogsDrop = 0;
 	
 	protected SingleplayerController() {
 		view = GameView.getInstance();
-		settings = new Settings();
 	}
 	
 	public static SingleplayerController getInstance() {
 		return controller == null? new SingleplayerController() : controller;
-	}	
+	}
 	
-	public void onStart(Settings s) {
+	protected void initController(GameInfo gInfo) {
 	    controller = new SingleplayerController();
-	    controller.settings = s;
-	    controller.slot = ThreadLocalRandom.current().nextInt(2);
+	}
+	
+	public void onStart(GameInfo gInfo) {
+	    if(Application.name.equals(gInfo.hostName)) slot = gInfo.hostSlot;
+	    else slot = (gInfo.hostSlot+1)%2;
+	    frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
+	    initController(gInfo);
+	    controller.gInfo = gInfo;
 	    controller.player = new Snake(slot);
 	    controller.frogs = new HashSet<>();
-	    controller.opponent = null;
 		GameView.activate(controller.frogs, controller.player, controller.opponent, 
-				          controller.settings.sizeN, controller.settings.sizeM);
+				          controller.gInfo.sizeN, controller.gInfo.sizeM);
 		controller.start();
 	}
 	
@@ -52,7 +51,7 @@ public class SingleplayerController extends Thread implements Controller {
 		Position head = snake.stretch();
 		if(head == null)
 			return -1;  //snake hits self
-		if( !settings.noBorder && head.outside() )
+		if( !gInfo.noBorder && head.outside() )
 			return -1; //outside border
 		if( opponent != null && opponent.contains(head) )
 			return -1; //snake hits opponent
@@ -75,7 +74,7 @@ public class SingleplayerController extends Thread implements Controller {
 	}
 
 	public void addFrogMabye(){
-		if( ThreadLocalRandom.current().nextInt(0, settings.getFrogsDrop() ) != 0)
+		if( ThreadLocalRandom.current().nextInt(0, frogsDrop ) != 0)
 			return;
 		
 		Position p;
@@ -90,17 +89,13 @@ public class SingleplayerController extends Thread implements Controller {
 	@Override
 	public void run() {		
 		do {
-			try        
-	    	{
-				System.out.println(settings.turnTimeMS);
-	    	    Thread.sleep(settings.turnTimeMS);
-	    	} 
-	    	catch(InterruptedException ex) 
-	    	{
+			try {
+	    	    Thread.sleep(gInfo.turnTimeMS);
+	    	} catch(InterruptedException ex) {
 	    	    Thread.currentThread().interrupt();
 	    	}
 	    	view.repaint();
-	    	settings.turnTimeMS -= settings.decreaseTimeMS;
+	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
 		} while(turn() != -1);
 		view.setVisible(false);
 		MenuController.activate();

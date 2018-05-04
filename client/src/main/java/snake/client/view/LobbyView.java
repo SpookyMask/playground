@@ -21,8 +21,7 @@ import org.springframework.stereotype.Component;
 
 import snake.client.controller.LobbyController;
 import snake.client.model.comm.GameInfo;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Stats;
+import snake.client.model.comm.User;
 
 @Component
 public class LobbyView extends JFrame {
@@ -32,7 +31,7 @@ public class LobbyView extends JFrame {
 	private JTable table;
 	private JButton host, join;
 	
-	private Stats stats;
+	private User stats;
 	private GameInfo[] hosts;
 	
 	private LobbyView() {
@@ -115,7 +114,7 @@ public class LobbyView extends JFrame {
 		return hosts[table.getSelectedRow()].name;
 	}
 	
-	public void setStats(Stats s) {
+	public void setStats(User s) {
 		stats = s;
 		name.setText(stats.name);
 		wins.setText(Integer.toString(stats.wins));
@@ -143,7 +142,7 @@ public class LobbyView extends JFrame {
         repaint();
 	}
 	
-	public static LobbyView activate(Stats stats, Host[] hosts) {
+	public static LobbyView activate(User stats, GameInfo[] hosts) {
 		if(lobby == null) lobby = new LobbyView();
 		lobby.setStats(stats);
 		lobby.setHosts(hosts);

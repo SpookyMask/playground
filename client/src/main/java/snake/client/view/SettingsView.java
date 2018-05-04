@@ -1,7 +1,6 @@
 package snake.client.view;
 
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 
@@ -10,20 +9,21 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import snake.client.view.ActionAdapter;
-import snake.client.controller.MenuController;
+
+import org.springframework.boot.autoconfigure.h2.H2ConsoleProperties.Settings;
+
 import snake.client.controller.SettingsController;
-import snake.client.model.comm.Settings;
+import snake.client.model.comm.GameInfo;
 
 public class SettingsView extends JFrame {
 	private static SettingsView view;
-	private static Settings settings;
+	private static GameInfo settings;
 	private JTextField n,m,noborder,time,decr;
 	
 	public  static JButton start;
 	
 	private SettingsView(){
-		settings = new Settings();
+		settings = new GameInfo();
 		
 		ActionAdapter buttonListener = null;
 	    buttonListener = new ActionAdapter() {
@@ -80,7 +80,7 @@ public class SettingsView extends JFrame {
 	    pack();
 	}
 	
-	public Settings getSettings() {
+	public GameInfo getSettings() {
 		settings.sizeN = Integer.parseInt(n.getText());
 		settings.sizeM = Integer.parseInt(m.getText());
 		settings.noBorder = Boolean.parseBoolean(noborder.getText());

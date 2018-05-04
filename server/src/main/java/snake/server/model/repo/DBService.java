@@ -5,7 +5,8 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import snake.server.model.User;
+
+import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 
 @Service

@@ -1,16 +1,17 @@
 package snake.client.model.comm;
 
 public class Turn {
-	public String hName, name;
-	public int hostDir;
-	public int dir;
-	public boolean endingTurn;
+	public int oppDir;
+	public int penalty;
+	public boolean waiting;
+	public boolean over = false;
 	
     public Turn(){
 		
 	}
-    public Turn(String hName, String name){
-    	this.hName = hName;
-    	this.name = name;
-    }
+	
+    public Turn(int oppDir, int penalty){
+		this.oppDir = oppDir;
+		this.penalty = penalty;
+	}
 }

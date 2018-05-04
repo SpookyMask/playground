@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 
 import org.springframework.stereotype.Component;
-import snake.client.model.comm.Settings;
+
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 

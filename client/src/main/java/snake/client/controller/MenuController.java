@@ -1,12 +1,5 @@
 package snake.client.controller;
 
-import org.springframework.http.ResponseEntity;
-
-import snake.client.Application;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Stats;
-import snake.client.model.configs.ClientConfig;
-import snake.client.view.LobbyView;
 import snake.client.view.MenuView;
 
 public class MenuController implements Controller {

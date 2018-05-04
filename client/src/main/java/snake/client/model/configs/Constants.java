@@ -8,4 +8,5 @@ public class Constants {
 	public static int decreaseTimeMS = 2;
 	
 	public static long hostCheckInterval = 2000;
+	public static long defaultDelay = 1300;
 }

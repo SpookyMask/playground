@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import snake.server.model.User;
 import snake.server.model.comm.GameInfo;
-import snake.server.model.comm.Stats;
+import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 import snake.server.model.repo.IDBService;
 
@@ -30,7 +27,7 @@ public class LobbyController {
 	public IDBService dbService;
 
     @GetMapping("stats")
-    public Stats stats(@RequestParam(value="name") String name) {
+    public User stats(@RequestParam(value="name") String name) {
     	User u;
     	if(name.equals("random")) {
     		String n;
@@ -47,7 +44,7 @@ public class LobbyController {
 	    		dbService.updateUser(u);
     		}
     	}
-    	return new Stats(u.name,u.wins,u.losses);
+    	return u;
     }
     
     @GetMapping("hosts")

@@ -8,9 +8,7 @@ import org.springframework.http.ResponseEntity;
 import snake.client.Application;
 import snake.client.controller.refresh.ReloadHostsTimerTask;
 import snake.client.model.comm.GameInfo;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Stats;
-import snake.client.model.configs.ClientConfig;
+import snake.client.model.comm.User;
 import snake.client.view.LobbyView;
 
 public class LobbyController implements Controller {
@@ -54,16 +52,16 @@ public class LobbyController implements Controller {
 		MultiplayerController.delayedStart(gInfo);
 	}
 	
-	public static Stats getStatsFromServer() {
+	public static User getStatsFromServer() {
 		String s = Application.serverAddress + "stats?name="+Application.name;
-		Stats stats = Application.restTemplate.getForObject(s, Stats.class);
+		User stats = Application.restTemplate.getForObject(s, User.class);
 		Application.name = stats.name;
 		return stats;
 	}
 	
-	public static Host[] getHostsFromServer() {
+	public static GameInfo[] getHostsFromServer() {
 		String s = Application.serverAddress + "hosts";
-		ResponseEntity<Host[]> responseEntity = Application.restTemplate.getForEntity(s, Host[].class);
+		ResponseEntity<GameInfo[]> responseEntity = Application.restTemplate.getForEntity(s, GameInfo[].class);
 		return responseEntity.getBody();
 	}
 	

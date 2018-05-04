@@ -1,40 +1,29 @@
 package snake.client.controller;
 
-import java.util.HashSet;
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.springframework.http.ResponseEntity;
 
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Settings;
-import snake.client.model.comm.Stats;
 import snake.client.model.comm.Turn;
-import snake.client.model.configs.ClientConfig;
 import snake.client.model.configs.Constants;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
-import snake.client.view.LobbyView;
 
 public class MultiplayerController extends SingleplayerController {
 	private static MultiplayerController controller = null;
-	private GameInfo gInfo;
 	
-	private MultiplayerController(GameInfo g) {
-		gInfo = g;
-	    settings = g.host.settings;
-	    slot = g.host.settings.slot;
-	    player = new Snake(slot);
-	    frogs = new HashSet<>();
-	    opponent = new Snake((slot+1)%2);
-		GameView.activate(controller.frogs, controller.player, controller.opponent, 
-				          controller.settings.sizeN, controller.settings.sizeM);
-		
+	private MultiplayerController() {
+		view = GameView.getInstance();
 	}
 	
 	public static MultiplayerController getInstance() {
 		return controller;
+	}
+	
+	@Override
+	protected void initController(GameInfo gInfo) {
+	    controller = new MultiplayerController();
+	    controller.opponent = new Snake((slot+1)%2);
 	}
 	
 	@Override
@@ -78,13 +67,12 @@ public class MultiplayerController extends SingleplayerController {
 	
 	//join  --  guest joins
 	public static void delayedStart(GameInfo gInfo) {
-		controller = new MultiplayerController(gInfo);
 		try{
     	    Thread.sleep(controller.gInfo.startsIn);
     	} catch(InterruptedException ex) {
     	    Thread.currentThread().interrupt();
     	}
-		controller.start();
+		controller.onStart(gInfo);
 	}
 	
 	//wait  --  host waits for guest
@@ -104,25 +92,29 @@ public class MultiplayerController extends SingleplayerController {
     	} catch(InterruptedException ex){
     	    Thread.currentThread().interrupt();
     	}
-		controller = new MultiplayerController(gInfo);
-		controller.start();
+		controller.onStart(gInfo);
 	}
 	
 	@Override
 	public void run() {
+		Turn status;
 		do {
 			try{
-	    	    Thread.sleep(settings.turnTimeMS);
+	    	    Thread.sleep(gInfo.turnTimeMS);
 	    	} catch(InterruptedException ex){
 	    	    Thread.currentThread().interrupt();
 	    	}
 	    	view.repaint();
-	    	settings.turnTimeMS -= settings.decreaseTimeMS;
-	    	
-	    	String s = Application.serverAddress + "stats?name="+Application.name;
-			Stats stats = Application.restTemplate.getForObject(s, Stats.class);
-	    	
-		} while(turn() != -1);
+	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
+	    	status = getEndTurn();
+	    	if(status.over) {
+	    		break;
+	    	} else if(status.penalty > 0) {
+	    		gInfo.turnTimeMS -= status.penalty;
+	    	}
+	    		
+		} while(turn(status.oppDir) != -1);
+		
 		view.setVisible(false);
 		
 		MenuController.activate();
@@ -142,6 +134,12 @@ public class MultiplayerController extends SingleplayerController {
 	public static Turn postEndTurn(Turn endTurn) {
 		String s = Application.serverAddress + "endturn?name="+Application.name;
 		return Application.restTemplate.postForObject(s, endTurn, Turn.class);
+	}
+	
+	public static Turn getEndTurn() {
+		String s = Application.serverAddress + "endturn?name="+Application.name+
+				   "&dir="+controller.player.getDirection();
+		return Application.restTemplate.getForObject(s, Turn.class);
 	}
 	
 	public static void putOverToServer() {

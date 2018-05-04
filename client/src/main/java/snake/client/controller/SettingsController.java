@@ -1,8 +1,7 @@
 package snake.client.controller;
 
 import snake.client.Application;
-import snake.client.model.comm.Host;
-import snake.client.model.comm.Settings;
+import snake.client.model.comm.GameInfo;
 import snake.client.view.SettingsView;
 
 public class SettingsController implements Controller {
@@ -29,20 +28,19 @@ public class SettingsController implements Controller {
 		return controller == null? new SettingsController() : controller;
 	}
 	
-	public void onStartClick(Settings set) {
+	public void onStartClick(GameInfo gInfo) {
 		if(multi) {
-			Host host = postSettingsOnServer(set);
+			GameInfo host = postSettingsOnServer(gInfo);
 			view.setVisible(false);
 			MultiplayerController.waitForHost();
 		} else {
 			view.setVisible(false);
-			SingleplayerController.getInstance().onStart(set);
+			SingleplayerController.getInstance().onStart(gInfo);
 		}
 	}
 	
-	public Host postSettingsOnServer(Settings set) {
-		Host h = new Host(Application.name, set);
+	public GameInfo postSettingsOnServer(GameInfo gInfo) {
 		String s = Application.serverAddress + "host";
-		return Application.restTemplate.postForObject(s, h, Host.class);
+		return Application.restTemplate.postForObject(s, gInfo, GameInfo.class);
 	}
 }

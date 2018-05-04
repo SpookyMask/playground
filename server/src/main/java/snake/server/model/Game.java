@@ -5,47 +5,43 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import snake.server.model.comm.GameInfo;
-import snake.server.model.comm.Settings;
 import snake.server.model.comm.Turn;
+import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 
-@Entity
+//@Entity
 public class Game{
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue
 	public int id;
 	
-	@JsonIgnore
 	@ManyToOne
 	public User host;
 	
-	@JsonIgnore
 	@ManyToOne
 	public User guest;
-	
-	public int sizeN = Constants.sizeN, sizeM = Constants.sizeM;
-	
-	public boolean noBorder = Constants.noBorder;
-	
-	public int turnTimeMS = Constants.turnTimeMS;
-	
-	public int decreaseTimeMS = Constants.decreaseTimeMS;
 
-	@JsonIgnore
 	public boolean hostWon, guestWon;
+	
+	private GameInfo gInfo;
 	
 	@Transient
 	private Turn turn;
+	
 	@Transient
-	private GameInfo gInfo;
+	private boolean hostEnded, guestEnded, gameSync;
+	
 	@Transient
-	private boolean hostEnded, guestEnded;
+	private long penaltyStart;
+	
+	@Transient
+	private int hostDir, guestDir;
 	
 	public Game(GameInfo gInfo) {
 		super();
@@ -54,21 +50,27 @@ public class Game{
 	
 	public void updateDir(String name, int dir){
 		if(hostEnded || guestEnded) return;
-		if(name == gInfo.hostName) turn.hostDir = dir;
-		else turn.dir = dir;
+		if(name == gInfo.hostName) hostDir = dir;
+		else this.guestDir = dir;
 	}
 	
-	public boolean manageTurn(String name) {
-		if(name == gInfo.hostName)
+	public Turn manageTurn(String name) {
+		int oppDir = name.equals(gInfo.hostName)? this.guestDir : hostDir;
+		if(name.equals(gInfo.hostName))
 			hostEnded = true;
 		else 
 			guestEnded = true;
-		if(hostEnded && guestEnded) {
+		if(hostEnded && guestEnded) {	//second player ending turn
 			hostEnded = false;
 			guestEnded = false;
-			return true;
+			long penalty = System.currentTimeMillis() - penaltyStart;
+			return new Turn(oppDir,penalty);
 		}
-		else return false;
+		else {		//first player ending turn
+			gameSync = true;
+			penaltyStart = System.currentTimeMillis();
+			return new Turn(oppDir,0);
+		}
 	}
 
 }

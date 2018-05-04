@@ -1,3 +1,0 @@
-server_ip_address = localhost
-server_port = 3457 
-player_name = Newbie

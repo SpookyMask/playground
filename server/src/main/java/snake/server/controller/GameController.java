@@ -5,12 +5,16 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import snake.server.model.Game;
 import snake.server.model.comm.GameInfo;
+import snake.server.model.comm.Turn;
 import snake.server.model.repo.IDBService;
 
 @RestController
@@ -53,7 +57,7 @@ public class GameController {
 	}
 	
 	@GetMapping("endturn")
-	public boolean endturn(@RequestParam(value="name") String name) {
+	public Turn endturn(@RequestParam(value="name") String name) {
 		Game game = runningGames.get(name);
 		return game.manageTurn(name);
 	}
