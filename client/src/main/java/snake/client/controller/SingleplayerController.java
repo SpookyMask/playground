@@ -16,7 +16,7 @@ public class SingleplayerController extends Thread implements Controller {
 	protected GameInfo gInfo;
 	protected Snake player = null;
 	protected Snake opponent = null;
-	public Set<Position> frogs = new HashSet<>();
+	public Set<Position> frogs = null;
 	protected int slot = 0;
 	protected int frogsDrop = 0;
 	
@@ -33,10 +33,13 @@ public class SingleplayerController extends Thread implements Controller {
 	}
 	
 	public void onStart(GameInfo gInfo) {
-	    if(Application.name.equals(gInfo.hostName)) slot = gInfo.hostSlot;
-	    else slot = (gInfo.hostSlot+1)%2;
-	    frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
 	    initController(gInfo);
+		Position.sizeN = gInfo.sizeN;
+		Position.sizeM = gInfo.sizeM;
+	    Snake.noBorder = gInfo.noBorder;
+	    if(Application.name.equals(gInfo.hostName)) controller.slot = gInfo.hostSlot;
+	    else controller.slot = (gInfo.hostSlot+1)%2;
+	    controller.frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
 	    controller.gInfo = gInfo;
 	    controller.player = new Snake(slot);
 	    controller.frogs = new HashSet<>();
@@ -50,7 +53,7 @@ public class SingleplayerController extends Thread implements Controller {
 	public int move(Snake snake) {
 		Position head = snake.stretch();
 		if(head == null)
-			return -1;  //snake hits self
+			return -1;  //snake hits self or collides with border
 		if( !gInfo.noBorder && head.outside() )
 			return -1; //outside border
 		if( opponent != null && opponent.contains(head) )
@@ -94,6 +97,7 @@ public class SingleplayerController extends Thread implements Controller {
 	    	} catch(InterruptedException ex) {
 	    	    Thread.currentThread().interrupt();
 	    	}
+			view.frogs = new HashSet<>(frogs); //because of java.util.ConcurrentModificationException
 	    	view.repaint();
 	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
 		} while(turn() != -1);

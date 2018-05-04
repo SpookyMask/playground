@@ -142,10 +142,8 @@ public class LobbyView extends JFrame {
         repaint();
 	}
 	
-	public static LobbyView activate(User stats, GameInfo[] hosts) {
+	public static LobbyView activate() {
 		if(lobby == null) lobby = new LobbyView();
-		lobby.setStats(stats);
-		lobby.setHosts(hosts);
 		lobby.setVisible(true);
 		return lobby;
 	}	

@@ -18,7 +18,8 @@ import snake.server.model.comm.Turn;
 import snake.server.model.repo.IDBService;
 
 @RestController
-public class GameController {	
+public class GameController {
+	
 	@Autowired
 	public IDBService dbService;
 

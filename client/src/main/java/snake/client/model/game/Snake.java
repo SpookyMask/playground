@@ -8,6 +8,7 @@ public class Snake {
 	public LinkedList<Position> body = new LinkedList<>();
     private int direction = 0;
     private int last_direction; //used to determine if head returns where it was
+    public static boolean noBorder = true;
     static Position[] coord = new Position[]{ new Position(1,0),
             new Position(0,1),
             new Position(-1,0),
@@ -38,13 +39,18 @@ public class Snake {
     }
     
     public LinkedList<Position> getList(){
-    	return body;
+    	return new LinkedList<>(body);	//because of java.util.ConcurrentModificationException
     }
     
     //returns new head position
     public Position stretch() {
-    	Position head_next = body.peekLast().plus(coord[direction]);
-    	if(body.contains(head_next))
+    	Position head_next;
+    	head_next = body.peekLast().next(coord[direction]);
+    	if(noBorder) head_next = head_next.normalize();
+    	else if(head_next.outside()) 
+    		return null;    //snake collides with border
+    	
+    	if( body.contains(head_next) )
     		return null;	//snake hits itself
     	body.addLast(head_next);
     	last_direction = direction;
@@ -61,11 +67,10 @@ public class Snake {
     		(d == 2 && last_direction == 0 ) ||
     		(d == 3 && last_direction == 1 ) )
     		return;	//Can't move backwards!
-    	MultiplayerController.getInstance().onDirUpdate(direction);
     	direction = d;
     }
     
-    public int getDirection() {
+    public int getDir() {
     	return direction;
     }
 }

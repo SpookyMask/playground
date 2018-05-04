@@ -2,6 +2,7 @@ package snake.client.controller;
 
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
+import snake.client.model.game.Position;
 import snake.client.view.SettingsView;
 
 public class SettingsController implements Controller {

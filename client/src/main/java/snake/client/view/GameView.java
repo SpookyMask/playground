@@ -38,7 +38,7 @@ public class GameView extends JFrame implements KeyListener {
 	
 	public void paint(Graphics g) {
     	g.setColor(Color.WHITE);
-        g.fillRect(0,0, 430, 430);
+        g.fillRect(0,0, Position.sizeN * 20 + 30, Position.sizeM * 20 + 30);
         
 	    g.setColor(Color.GREEN);
 	    for(Position p : frogs)
@@ -55,7 +55,6 @@ public class GameView extends JFrame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		//System.out.println("keyPressed");
         if(e.getKeyCode()== KeyEvent.VK_RIGHT)
         	player.setDir(0);
         else if(e.getKeyCode()== KeyEvent.VK_LEFT)

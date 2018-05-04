@@ -9,12 +9,15 @@ public class Position extends Object{
 	public Position(int pos_x, int pos_y) {
 		x = pos_x; y = pos_y;
 	}
-	public Position(Position pos) {
-		x = pos.x; y = pos.y;
+	
+	public Position next(Position pos) {
+		return new Position(x + pos.x, y + pos.y);
 	}
 	
-	public Position plus(Position pos) {
-		return new Position((x + pos.x + 20)%20, (y + pos.y + 20)%20);
+	public Position normalize() {
+		x = (x + sizeN)%sizeN;
+		y = (y + sizeM)%sizeM;
+		return this;
 	}
 	
 	public boolean outside() {

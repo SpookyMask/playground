@@ -138,7 +138,7 @@ public class MultiplayerController extends SingleplayerController {
 	
 	public static Turn getEndTurn() {
 		String s = Application.serverAddress + "endturn?name="+Application.name+
-				   "&dir="+controller.player.getDirection();
+				   "&dir="+controller.player.getDir();
 		return Application.restTemplate.getForObject(s, Turn.class);
 	}
 	

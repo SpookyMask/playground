@@ -20,11 +20,9 @@ public class LobbyController implements Controller {
 		if(view == null) view = LobbyView.getInstance();
 	    
 		if(view == null) 
-			view = LobbyView.activate(getStatsFromServer(), getHostsFromServer());
-		else {
-			view.setStats(getStatsFromServer());
-			view.setHosts(getHostsFromServer());
-		}		
+			view = LobbyView.activate();
+		view.setStats(getStatsFromServer());
+		view.setHosts(getHostsFromServer());
 		view.setVisible(true);
 
 		// run this task as a background/daemon thread
