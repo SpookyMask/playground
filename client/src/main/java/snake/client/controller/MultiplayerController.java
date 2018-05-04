@@ -1,11 +1,14 @@
 package snake.client.controller;
 
+import java.util.HashSet;
+
 import org.springframework.http.ResponseEntity;
 
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
 import snake.client.model.comm.Turn;
 import snake.client.model.configs.Constants;
+import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
 
@@ -23,6 +26,26 @@ public class MultiplayerController extends SingleplayerController {
 	protected static MultiplayerController initController(GameInfo gInfo) {
 	    return new  MultiplayerController();
 	}
+	
+	public static void onStart(GameInfo gInfo) {
+		controller = new MultiplayerController();
+		int slot = Application.name.equals(gInfo.hostName)? gInfo.hostSlot : (gInfo.hostSlot+1)%2;
+		controller.view.setVisible(true);
+		Position.sizeN = gInfo.sizeN;
+		Position.sizeM = gInfo.sizeM;
+	    Snake.noBorder = gInfo.noBorder;
+	    if(Application.name.equals(gInfo.hostName)) controller.slot = gInfo.hostSlot;
+	    else controller.slot = slot;
+	    controller.frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
+	    controller.gInfo = gInfo;
+	    controller.player = new Snake(slot);
+		controller.opponent = new Snake((slot+1)%2);
+	    controller.frogs = new HashSet<>();
+		GameView.activate(controller.frogs, controller.player, controller.opponent, 
+				          controller.gInfo.sizeN, controller.gInfo.sizeM);
+		controller.start();
+	}
+	
 	
 	@Override
 	public void onDirUpdate(int newDir) {
@@ -70,7 +93,7 @@ public class MultiplayerController extends SingleplayerController {
     	} catch(InterruptedException ex) {
     	    Thread.currentThread().interrupt();
     	}
-		controller.onStart(gInfo);
+		onStart(gInfo);
 	}
 	
 	//wait  --  host waits for guest
@@ -90,13 +113,15 @@ public class MultiplayerController extends SingleplayerController {
     	} catch(InterruptedException ex){
     	    Thread.currentThread().interrupt();
     	}
-		controller.onStart(gInfo);
+		onStart(gInfo);
 	}
 	
 	@Override
 	public void run() {
 		Turn status;
+		System.out.println(Application.name + ": " + System.currentTimeMillis()%10000);
 		do {
+			if(gInfo.turnTimeMS < 0) break;
 			try{
 	    	    Thread.sleep(gInfo.turnTimeMS);
 	    	} catch(InterruptedException ex){
@@ -104,17 +129,20 @@ public class MultiplayerController extends SingleplayerController {
 	    	}
 	    	view.repaint();
 	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
-	    	status = getEndTurn();
-	    	if(status.over) {
+	    	
+	    	status = postEndTurnToServer();
+	    	if(status.over)
 	    		break;
-	    	} else if(status.penalty > 0) {
+	    	else if(status.waiting) 
+	    		continue;
+	    	else if(status.penalty > 0) {
 	    		gInfo.turnTimeMS -= status.penalty;
 	    	}
-	    		
-		} while(turn(status.oppDir) != -1);
+	    	if(status.frogX >= 0) controller.frogs.add(new Position(status.frogX, status.frogY));
+		} while(turn(status.dir) != -1);
 		
 		controller.view.setVisible(false);
-		MenuController.activate();
+		LobbyController.activate();
 	}
 	
 	public static GameInfo getGameInfoFromServer() {
@@ -128,19 +156,16 @@ public class MultiplayerController extends SingleplayerController {
 		Application.restTemplate.getForObject(s, ResponseEntity.class);
 	}
 	
-	public static Turn postEndTurn(Turn endTurn) {
-		String s = Application.serverAddress + "endturn?name="+Application.name;
+	public static Turn postEndTurnToServer() {
+		String s = Application.serverAddress + "endturn";
+		Turn endTurn = new Turn();
+		endTurn.name = Application.name;
+		endTurn.dir = controller.player.getDir();
 		return Application.restTemplate.postForObject(s, endTurn, Turn.class);
 	}
 	
-	public static Turn getEndTurn() {
-		String s = Application.serverAddress + "endturn?name="+Application.name+
-				   "&dir="+controller.player.getDir();
-		return Application.restTemplate.getForObject(s, Turn.class);
-	}
-	
 	public static void putOverToServer() {
-		String s = Application.serverAddress + "aim?name="+Application.name;
+		String s = Application.serverAddress + "over?name="+Application.name;
 		Application.restTemplate.getForObject(s, ResponseEntity.class);
 	}
 }

@@ -36,39 +36,28 @@ public class GameController {
   		    Game game = new Game(gInfo);
   		    runningGames.put(name, game);
   		    runningGames.put(hostname, game);
+  		    LobbyController.hosts.remove(hostname);
         }
   	    return gInfo;
     }
     
     @GetMapping("wait")
     public GameInfo wait(@RequestParam(value="name") String name) {
-    	if(!runningGames.containsKey(name)) return null;
-    	GameInfo gInfo = LobbyController.hosts.get(name);
-    	gInfo.updateStartIn(); 
-    	return gInfo;
+    	if(!runningGames.containsKey(name)) {
+    		System.out.println("Host " + name + " waits again...");
+    		return null;
+    	}
+    	Game game = runningGames.get(name);
+    	game.gInfo.updateStartIn();
+    	return game.gInfo;
     }
-
 	
-	@GetMapping("aim")
-	public HttpStatus aimSnake(@RequestParam(value="name") String name,
-			             @RequestParam(value="dir") int dir) {
-		Game game = runningGames.get(name);
-		game.updateDir(name, dir);
-		return HttpStatus.OK;
+	@PostMapping("endturn")
+	public Turn endturn(@RequestBody Turn turn) {
+		Game game = runningGames.get(turn.name);
+		turn = game.manageTurn(turn);
+		return turn;
 	}
-	
-	@GetMapping("endturn")
-	public Turn endturn(@RequestParam(value="name") String name) {
-		Game game = runningGames.get(name);
-		return game.manageTurn(name);
-	}
-	
-//	@PostMapping("endturn")
-//	public ResponseEntity<Turn> endturn(@RequestBody Turn turn) {
-//		Game game = runningGames.get(turn.name);
-//		turn = game.manageTurn(turn);
-//		return new ResponseEntity<Turn>(turn, HttpStatus.OK);
-//	}
 	
 	@GetMapping("over")
 	public void over(@RequestParam(value="name") String name) {

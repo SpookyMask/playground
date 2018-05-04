@@ -1,17 +1,19 @@
 package snake.client.model.comm;
 
 public class Turn {
-	public int oppDir;
-	public int penalty;
-	public boolean waiting;
+	public String name;
+	public int dir;
+	public int frogX, frogY;
+	public long penalty;
+	public boolean waiting = false;
 	public boolean over = false;
 	
     public Turn(){
 		
 	}
 	
-    public Turn(int oppDir, int penalty){
-		this.oppDir = oppDir;
+    public Turn(int dir, int penalty){
+		this.dir = dir;
 		this.penalty = penalty;
 	}
 }

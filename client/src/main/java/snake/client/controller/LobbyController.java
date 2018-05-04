@@ -28,7 +28,7 @@ public class LobbyController implements Controller {
 		// run this task as a background/daemon thread
 		TimerTask timerTask = new ReloadHostsTimerTask();
 		Timer timer = new Timer(true);
-		timer.scheduleAtFixedRate(timerTask, 0, 5*1000);
+		timer.scheduleAtFixedRate(timerTask, 0, 10*1000);
 //        timer.cancel();
 //        timer.purge();
 		

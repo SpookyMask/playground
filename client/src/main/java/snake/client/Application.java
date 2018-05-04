@@ -19,17 +19,13 @@ import org.springframework.web.client.RestTemplate;
 import snake.client.model.configs.ClientConfig;
 import snake.client.view.MenuView;
 
-//@Component
-//@ComponentScan
 @SpringBootApplication
 public class Application{
 	
 //	@Autowired
-//	private MenuView menu;
 	public static RestTemplate restTemplate;
-	public static String serverAddress;
 	
-	public static int id;
+	public static String serverAddress;
 	public static String name;
 
 	public static final Logger log = LoggerFactory.getLogger(Application.class);

@@ -32,19 +32,17 @@ public class SingleplayerController extends Thread implements Controller {
 	    return new SingleplayerController();
 	}
 	
+	
+	
 	public static void onStart(GameInfo gInfo) {
-		if( controller instanceof MultiplayerController ) {
-			controller = new MultiplayerController();
-			controller.opponent = new Snake((controller.slot+1)%2);
-		} else {
-		    controller = new SingleplayerController();
-		}
+		controller = new SingleplayerController();
+		int slot = Application.name.equals(gInfo.hostName)? gInfo.hostSlot : (gInfo.hostSlot+1)%2;
 		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
 	    Snake.noBorder = gInfo.noBorder;
 	    if(Application.name.equals(gInfo.hostName)) controller.slot = gInfo.hostSlot;
-	    else controller.slot = (gInfo.hostSlot+1)%2;
+	    else controller.slot = slot;
 	    controller.frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
 	    controller.gInfo = gInfo;
 	    controller.player = new Snake(controller.slot);

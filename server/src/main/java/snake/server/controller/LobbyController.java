@@ -28,22 +28,13 @@ public class LobbyController {
 
     @GetMapping("stats")
     public User stats(@RequestParam(value="name") String name) {
-    	User u;
-    	if(name.equals("random")) {
-    		String n;
-    		do {
-    			n = Constants.getRandomName();
-    			u = dbService.getUserByName(n);
-    		} while(u != null);
-		    u = new User(n);
-			dbService.updateUser(u);
-    	} else {
-    		u = dbService.getUserByName(name);
-    		if(u == null) {
-	    		u = new User(name);
-	    		dbService.updateUser(u);
-    		}
-    	}
+    	if(name.equals("random"))
+    		name = Constants.getRandomName();
+    	User u = dbService.getUserByName(name);
+		if(u == null) {
+    		u = new User(name);
+    		dbService.updateUser(u);
+		}
     	return u;
     }
     

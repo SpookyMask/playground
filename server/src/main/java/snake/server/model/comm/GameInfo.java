@@ -25,12 +25,14 @@ public class GameInfo {
 	}
 	
 	public void setTimeStamp() {
-		startsTimeStamp = System.currentTimeMillis() + 500; 
-		startsIn = 500;
+		startsTimeStamp = System.currentTimeMillis() + Constants.gameStartDelay; 
+		startsIn = Constants.gameStartDelay;
+		System.out.println("Game " + hostName + " vs. " + guestName + " starts in:" + startsIn);
 	}
 	
 	public void updateStartIn() {
 		startsIn = startsTimeStamp - System.currentTimeMillis();
+		System.out.println("Game " + hostName + " vs. " + guestName + " : Host notified, game starts in:" + startsIn);
 	}
 	
 }

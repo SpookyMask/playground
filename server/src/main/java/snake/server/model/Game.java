@@ -55,12 +55,15 @@ public class Game{
 		else this.guestDir = dir;
 	}
 	
-	public Turn manageTurn(String name) {
-		int oppDir = name.equals(gInfo.hostName)? this.guestDir : hostDir;
-		if(name.equals(gInfo.hostName))
+	public Turn manageTurn(Turn playerTurn) {
+		int oppDir;
+		if(playerTurn.name.equals(gInfo.hostName)) {
 			hostEnded = true;
-		else 
+			oppDir = guestDir;
+		} else {
 			guestEnded = true;
+			oppDir = hostDir;
+		}
 		if(hostEnded && guestEnded) {	//second player ending turn
 			hostEnded = false;
 			guestEnded = false;
@@ -70,7 +73,8 @@ public class Game{
 		else {		//first player ending turn
 			gameSync = true;
 			penaltyStart = System.currentTimeMillis();
-			return new Turn(oppDir,0);
+			Turn sync = new Turn(oppDir,0);
+			return sync;
 		}
 	}
 

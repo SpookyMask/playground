@@ -1,7 +1,9 @@
 package snake.server.model.comm;
 
 public class Turn {
-	public int oppDir;
+	public String name;
+	public int dir;
+	public int frogX, frogY;
 	public long penalty;
 	public boolean waiting = false;
 	public boolean over = false;
@@ -10,8 +12,8 @@ public class Turn {
 		
 	}
 	
-    public Turn(int oppDir, long penalty){
-		this.oppDir = oppDir;
+    public Turn(int dir, long penalty){
+		this.dir = dir;
 		this.penalty = penalty;
 	}
 }

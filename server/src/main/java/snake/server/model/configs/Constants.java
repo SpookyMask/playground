@@ -7,39 +7,40 @@ public class Constants {
 	public static boolean noBorder = true;
 	public static int turnTimeMS = 1000;
 	public static int decreaseTimeMS = 2;
-	
+
 	public static long hostCheckInterval = 2000;
+	public static long gameStartDelay = 3000;
 	
 	public static String[] funnyNames = new String[]{ 
 		"Alf",
-		"Jim Bob",
+		"JimBob",
 		"Anheuser",
-		"Jolly Roger",
+		"JollyRoger",
 		"Belch",
 		"Leonidas",
-		"Big Mac",
+		"BigMac",
 		"ManBearPig",
-		"Bob Zombie",
-		"Master Chief",
+		"BobZombie",
+		"MasterChief",
 		"Boomhauer",
-		"Mr. Clean",
+		"MrClean",
 		"Braveheart",
 		"Mustache",
 		"Brundon",
-		"O'Doyle",
-		"Captain Crunch",
+		"ODoyle",
+		"CaptainCrunch",
 		"Pablo",
 		"Chewbacca",
 		"Popeye",
 		"Chubs",
-		"Pork Chop",
+		"PorkChop",
 		"Chum",
 		"Rufio",
 		"Derp",
 		"Rumplestiltskin",
 		"Django",
 		"Snoopy",
-		"Fight Club",
+		"FightClub",
 		"Spiderpig",
 		"Flanders",
 		"Spongebob",
@@ -48,7 +49,7 @@ public class Constants {
 		"Frodo",
 		"Taco",
 		"Frogger",
-		"Turd Ferguson",
+		"TurdFerguson",
 		"Gooch",
 		"Uh-Huh",
 		"Goonie",
@@ -59,8 +60,8 @@ public class Constants {
 		"Wizzer",
 		"Huggies",
 		"Wonka",
-		"The Hulk",
-		"Wreck-it Ralph",
+		"TheHulk",
+		"WreckitRalph",
 		"Jedi" };
 	
 	public static String getRandomName(){
