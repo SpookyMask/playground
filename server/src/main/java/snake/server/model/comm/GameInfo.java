@@ -6,8 +6,8 @@ import snake.server.model.configs.Constants;
 
 public class GameInfo {
 		
-	public String hostName, name;
-	
+	public String hostName, guestName;
+
 	@JsonIgnore
 	public long startsTimeStamp;
 	

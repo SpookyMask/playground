@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import snake.client.model.configs.Constants;
 
 public class GameInfo {
-	public String hostName, name;
+	public String hostName, guestName;
 	public long startsIn = Constants.defaultDelay;
 	public int sizeN = Constants.sizeN, sizeM = Constants.sizeM;
 	public boolean noBorder = Constants.noBorder;

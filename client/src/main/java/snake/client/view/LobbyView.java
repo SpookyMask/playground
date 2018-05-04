@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,7 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.springframework.stereotype.Component;
 
@@ -25,6 +28,8 @@ import snake.client.model.comm.User;
 
 @Component
 public class LobbyView extends JFrame {
+	private static final String[] columnNames = new String[]{"Hosts", "N", "M", "border", "turnMS", "decrMS"};
+	
 	private static LobbyView lobby = new LobbyView();
 	
 	private JLabel name, wins, losses;
@@ -78,7 +83,7 @@ public class LobbyView extends JFrame {
 	    
 	    pane = new JPanel();
 	    String[] columnNames = {"Hosts", "N", "M", "border", "turnMS", "decrMS"};
-	    table = new JTable(new String[][] {}, columnNames);
+	    table = new JTable(null, columnNames);
 	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    table.setPreferredScrollableViewportSize(new Dimension(100, 70));
 	    table.setFillsViewportHeight(true);
@@ -110,8 +115,8 @@ public class LobbyView extends JFrame {
 	
 	//returns username
 	public String getSelectedHost() {
-		if(table.getSelectedRow() == -1) return hosts[0].name;
-		return hosts[table.getSelectedRow()].name;
+		if(table.getSelectedRow() == -1) return null;
+		return hosts[table.getSelectedRow()].hostName;
 	}
 	
 	public void setStats(User s) {
@@ -128,17 +133,16 @@ public class LobbyView extends JFrame {
 		int i=0;
 		for(GameInfo h: hosts)
 			data[i++] = new String[] {
-					h.name,
+					h.hostName,
 					(new Integer(h.sizeN)).toString(),
 					(new Integer(h.sizeM)).toString(),
 					(new Boolean(h.noBorder)).toString(),
 					(new Integer(h.turnTimeMS)).toString(),
 					(new Integer(h.decreaseTimeMS)).toString()
 			};
-		DefaultTableModel model = new DefaultTableModel();
-		model.setDataVector(data, new String[]{"Hosts", "N", "M", "border", "turnMS", "decrMS"});
+		DefaultTableModel model = new DefaultTableModel(data.length, 6);
+		model.setDataVector(data, columnNames);
 		table.setModel(model);
-		//table.setRowSelectionInterval( 0, table.getRowCount()-1 );
         repaint();
 	}
 	

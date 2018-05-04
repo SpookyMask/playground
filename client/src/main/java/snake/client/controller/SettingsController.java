@@ -41,7 +41,8 @@ public class SettingsController implements Controller {
 	}
 	
 	public GameInfo postSettingsOnServer(GameInfo gInfo) {
-		String s = Application.serverAddress + "host";
+		gInfo.hostName = Application.name;
+		String s = Application.serverAddress + "host?name=" + gInfo.hostName;
 		return Application.restTemplate.postForObject(s, gInfo, GameInfo.class);
 	}
 }

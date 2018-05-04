@@ -28,12 +28,18 @@ public class SingleplayerController extends Thread implements Controller {
 		return controller == null? new SingleplayerController() : controller;
 	}
 	
-	protected void initController(GameInfo gInfo) {
-	    controller = new SingleplayerController();
+	protected static SingleplayerController initController(GameInfo gInfo) {
+	    return new SingleplayerController();
 	}
 	
-	public void onStart(GameInfo gInfo) {
-	    initController(gInfo);
+	public static void onStart(GameInfo gInfo) {
+		if( controller instanceof MultiplayerController ) {
+			controller = new MultiplayerController();
+			controller.opponent = new Snake((controller.slot+1)%2);
+		} else {
+		    controller = new SingleplayerController();
+		}
+		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
 	    Snake.noBorder = gInfo.noBorder;
@@ -41,7 +47,7 @@ public class SingleplayerController extends Thread implements Controller {
 	    else controller.slot = (gInfo.hostSlot+1)%2;
 	    controller.frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
 	    controller.gInfo = gInfo;
-	    controller.player = new Snake(slot);
+	    controller.player = new Snake(controller.slot);
 	    controller.frogs = new HashSet<>();
 		GameView.activate(controller.frogs, controller.player, controller.opponent, 
 				          controller.gInfo.sizeN, controller.gInfo.sizeM);

@@ -45,8 +45,9 @@ public class LobbyController implements Controller {
 	}
 	
 	public void onJoinClick() {
-		String host = view.getSelectedHost();
 		GameInfo gInfo = getGameInfoFromServer();
+		if(gInfo == null) return;
+		view.setVisible(false);
 		MultiplayerController.delayedStart(gInfo);
 	}
 	

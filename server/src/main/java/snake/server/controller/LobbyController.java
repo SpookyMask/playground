@@ -55,8 +55,8 @@ public class LobbyController {
     
 	@PostMapping("host")
 	public GameInfo host(@RequestBody GameInfo host) {
-		if(hosts.containsKey(host.name)) return null;
-		hosts.put(host.name, host);
+		if(hosts.containsKey(host.guestName)) return null;
+		hosts.put(host.hostName, host);
 		return host;
 	}
 

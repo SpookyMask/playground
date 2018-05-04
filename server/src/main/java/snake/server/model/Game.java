@@ -14,7 +14,7 @@ import snake.server.model.comm.Turn;
 import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 
-//@Entity
+@Entity
 public class Game{
 	
 	@Id
@@ -29,7 +29,8 @@ public class Game{
 
 	public boolean hostWon, guestWon;
 	
-	private GameInfo gInfo;
+	@Transient
+	public GameInfo gInfo;
 	
 	@Transient
 	private Turn turn;

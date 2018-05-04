@@ -12,7 +12,7 @@ import snake.client.view.GameView;
 public class MultiplayerController extends SingleplayerController {
 	private static MultiplayerController controller = null;
 	
-	private MultiplayerController() {
+	protected MultiplayerController() {
 		view = GameView.getInstance();
 	}
 	
@@ -20,10 +20,8 @@ public class MultiplayerController extends SingleplayerController {
 		return controller;
 	}
 	
-	@Override
-	protected void initController(GameInfo gInfo) {
-	    controller = new MultiplayerController();
-	    controller.opponent = new Snake((slot+1)%2);
+	protected static MultiplayerController initController(GameInfo gInfo) {
+	    return new  MultiplayerController();
 	}
 	
 	@Override
@@ -68,7 +66,7 @@ public class MultiplayerController extends SingleplayerController {
 	//join  --  guest joins
 	public static void delayedStart(GameInfo gInfo) {
 		try{
-    	    Thread.sleep(controller.gInfo.startsIn);
+    	    Thread.sleep(gInfo.startsIn);
     	} catch(InterruptedException ex) {
     	    Thread.currentThread().interrupt();
     	}
@@ -115,8 +113,7 @@ public class MultiplayerController extends SingleplayerController {
 	    		
 		} while(turn(status.oppDir) != -1);
 		
-		view.setVisible(false);
-		
+		controller.view.setVisible(false);
 		MenuController.activate();
 	}
 	

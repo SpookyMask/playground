@@ -31,7 +31,7 @@ public class GameController {
     	GameInfo gInfo = null;
     	if(LobbyController.hosts.containsKey(hostname)) {
     		gInfo = LobbyController.hosts.get(hostname);
-  		    gInfo.name = name;
+  		    gInfo.guestName = name;
   		    gInfo.setTimeStamp();
   		    Game game = new Game(gInfo);
   		    runningGames.put(name, game);
@@ -72,7 +72,10 @@ public class GameController {
 	
 	@GetMapping("over")
 	public void over(@RequestParam(value="name") String name) {
-		Game game = runningGames.remove(name);
+		Game game = runningGames.get(name);
+		runningGames.remove(game.gInfo.hostName);
+		runningGames.remove(game.gInfo.guestName);
+		
 		//dbService.
 		System.out.println("SERVER GAMEOVER!");
 	}
