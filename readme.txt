@@ -37,6 +37,8 @@ http://commons.apache.org/proper/commons-logging/download_logging.cgi
 https://alvinalexander.com/source-code/java/java-timertask-timer-and-scheduleatfixedrate-example
 2.17. Spring RESTFul Client – RestTemplate Example
 https://howtodoinjava.com/spring/spring-restful/spring-restful-client-resttemplate-example/
+2.18. Logging
+https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm
 3. ToDos
 *Premature optimization is the root of all evil*
 3.2. Proper encapsulation
@@ -52,30 +54,10 @@ https://howtodoinjava.com/spring/spring-restful/spring-restful-client-resttempla
 5. Dependencies
 org.springframework.boot
 spring-boot-starter-web
-6.
+6. Source code
+6.1. Search for file names
 grep --include=\*.{java} -rnw ' /home/sh_home/Documents/Kalin/Java/workspace/repository/' -e "gs-rest-service" 
-
-com.h2database
-h2
-
-org.springframework.boot
-spring-boot-starter-data-jpa
-
-org.springframework.boot
-spring-boot-starter-test
-
-com.jayway.jsonpath
-json-path
-6. git
-//Commit changes
-git add .
-git commit -m "message"
-
-//pull and push from and to the server
-git pull origin master
-git push origin master
-
-
+6.2. Mysql syntax
 mysql -u root -p
 >>> root
 show databases;
@@ -84,32 +66,8 @@ show tables;
 select * from users;
 truncate table;             //empty
 drop database db_snake;
-
-
+6.3. Application accessible URLs
 //Browser URLs for testing
 http://localhost:8080/stats?name=random
 
 
-
-//Maven dependency
-<dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>5.1.46</version>
-</dependency>
-
-
-//Sample Code
-    @GetMapping("join")
-    public GameInfo join(@RequestParam(value="name") String name,
-  		                                 @RequestParam(value="host") String hostname) {
-    	GameInfo gInfo = null;
-    	if(LobbyController.hosts.containsKey(hostname)) {
-  		    gInfo = new GameInfo(new Host(hostname, LobbyController.hosts.get(hostname).settings), name);
-  		    Game game = new Game(gInfo);
-  		    runningGames.put(name, game);
-  		    runningGames.put(hostname, game);
-  		    System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        }
-  	    return gInfo;
-    }

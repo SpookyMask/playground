@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import org.springframework.stereotype.Component;
 
+import snake.client.Application;
 import snake.client.controller.MenuController;
 
 @Component
@@ -28,7 +29,7 @@ public class MenuView extends JFrame {
 			} else if(e.getActionCommand().equals("connect")){
 				// Connect to the lobby
 				setVisible(false);
-				System.out.println("Connecting...");
+				Application.log.info(Application.name + " connecting...");
 				MenuController.getInstance().onConnectClick();
 				}
 			}

@@ -9,6 +9,8 @@ import snake.client.model.comm.GameInfo;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SingleplayerController extends Thread implements Controller {
 	private static SingleplayerController controller;
@@ -19,6 +21,8 @@ public class SingleplayerController extends Thread implements Controller {
 	public Set<Position> frogs = null;
 	protected int slot = 0;
 	protected int frogsDrop = 0;
+
+	final public static Logger log = Logger.getLogger(SingleplayerController.class);
 	
 	protected SingleplayerController() {
 		view = GameView.getInstance();
@@ -37,6 +41,7 @@ public class SingleplayerController extends Thread implements Controller {
 	public static void onStart(GameInfo gInfo) {
 		controller = new SingleplayerController();
 		int slot = Application.name.equals(gInfo.hostName)? gInfo.hostSlot : (gInfo.hostSlot+1)%2;
+		controller.view.setTitle("Snake Game - Singleplayer");
 		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
@@ -56,15 +61,18 @@ public class SingleplayerController extends Thread implements Controller {
 	
 	public int move(Snake snake) {
 		Position head = snake.stretch();
-		if(head == null)
-			return -1;  //snake hits self or collides with border
-		if( !gInfo.noBorder && head.outside() )
-			return -1; //outside border
+		log.debug("Snake " + snake + " stretches to " + head);
+		if(head == null) {
+			return -1;  //snake hits itself
+		} if( !gInfo.noBorder && head.outside() )
+			return -2; //outside border
 		if( opponent != null && opponent.contains(head) )
-			return -1; //snake hits opponent
+			return -3; //snake hits opponent
 		
-		if(frogs.contains(head))
+		if(frogs.contains(head)) {
 			frogs.remove(head);
+			log.debug("Snake " + snake + " eats a frog. ");
+		}
 		else
 			snake.shrink();
 		
@@ -75,14 +83,15 @@ public class SingleplayerController extends Thread implements Controller {
 		int over = move(player);
 		
 		//Game Turn
-		addFrogMabye();
+		Position frog = getFrogMabye();
+		if(frog != null) frogs.add(frog);
 		
 		return over;
 	}
 
-	public void addFrogMabye(){
+	public Position getFrogMabye(){
 		if( ThreadLocalRandom.current().nextInt(0, frogsDrop ) != 0)
-			return;
+			return null;
 		
 		Position p;
 		do{
@@ -90,7 +99,7 @@ public class SingleplayerController extends Thread implements Controller {
 		} while( player.contains(p) ||
 				 (opponent != null && opponent.contains(p)) ||
 				 frogs.contains(p) );
-		frogs.add(p);
+		return p;
 	}
 	
 	@Override

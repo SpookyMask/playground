@@ -50,7 +50,7 @@ public class Position extends Object{
 	
 	@Override
     public String toString() {
-        return String.format("(",x,',',y,')');
+        return "("+x+','+y+')';
     }
 	
 	public void setSize(int n, int m) {

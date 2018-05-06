@@ -1,23 +1,13 @@
 package snake.client;
 
-import org.slf4j.Logger;
-
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.apache.log4j.Logger;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import snake.client.model.configs.ClientConfig;
-import snake.client.view.MenuView;
 
 @SpringBootApplication
 public class Application{
@@ -28,7 +18,7 @@ public class Application{
 	public static String serverAddress;
 	public static String name;
 
-	public static final Logger log = LoggerFactory.getLogger(Application.class);
+	final public static Logger log = Logger.getLogger(Application.class);
 	
 	public static void main(String args[]) {
 		ClientConfig.read();
@@ -41,8 +31,13 @@ public class Application{
 	
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		this.restTemplate = builder.build();
+		restTemplate = builder.build();
 		return restTemplate;
 	}
+	
+//	@Bean
+//	public Logger log() {
+//		return Logger.getLogger(Application.class);
+//	}
 
 }

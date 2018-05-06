@@ -1,6 +1,7 @@
 package snake.server.controller;
 
 
+import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,11 @@ import snake.server.model.repo.IDBService;
 
 @RestController
 public class LobbyController {
+
 	public static Map<String, GameInfo> hosts = new HashMap<>();
+	
+	@Autowired
+	Logger log;
 	
 	@Autowired
 	public IDBService dbService;
@@ -35,6 +40,7 @@ public class LobbyController {
     		u = new User(name);
     		dbService.updateUser(u);
 		}
+		log.debug("User " + name + "  connected.");
     	return u;
     }
     
@@ -48,6 +54,7 @@ public class LobbyController {
 	public GameInfo host(@RequestBody GameInfo host) {
 		if(hosts.containsKey(host.guestName)) return null;
 		hosts.put(host.hostName, host);
+		log.debug("User " + host.hostName + " hosts a game.");
 		return host;
 	}
 

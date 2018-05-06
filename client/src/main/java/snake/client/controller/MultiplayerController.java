@@ -1,7 +1,10 @@
 package snake.client.controller;
 
 import java.util.HashSet;
+import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import snake.client.Application;
@@ -13,6 +16,7 @@ import snake.client.model.game.Snake;
 import snake.client.view.GameView;
 
 public class MultiplayerController extends SingleplayerController {
+	
 	private static MultiplayerController controller = null;
 	
 	protected MultiplayerController() {
@@ -29,7 +33,9 @@ public class MultiplayerController extends SingleplayerController {
 	
 	public static void onStart(GameInfo gInfo) {
 		controller = new MultiplayerController();
-		int slot = Application.name.equals(gInfo.hostName)? gInfo.hostSlot : (gInfo.hostSlot+1)%2;
+		boolean isHost = Application.name.equals(gInfo.hostName);
+		int slot = isHost? 0 : 1;
+		controller.view.setTitle("Game(" + gInfo.hostName + " vs. " + gInfo.guestName + ")");
 		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
@@ -63,8 +69,6 @@ public class MultiplayerController extends SingleplayerController {
 			move(opponent);
 			over = move(player);
 		}
-		
-		addFrogMabye();
 		
 		return over;
 	}
@@ -116,34 +120,104 @@ public class MultiplayerController extends SingleplayerController {
 		onStart(gInfo);
 	}
 	
+	// Players wait for the end of turn. When the first of them calls <<end of turn>>,
+	// one moves and updates the game state. The second player calls <<end of turn>> and...
+	
+	//player receives info for last opponent turn if any.
+	//if no last opponent turn: player turn and update game state.
+	
 	@Override
 	public void run() {
 		Turn status;
-		System.out.println(Application.name + ": " + System.currentTimeMillis()%10000);
+		Turn current = new Turn();
+		current.name = Application.name;
 		do {
-			if(gInfo.turnTimeMS < 0) break;
-			try{
-	    	    Thread.sleep(gInfo.turnTimeMS);
+			if(gInfo.turnTimeMS < 0) {
+				log.info("Player " + current.name + " loses due to too much passed time.");
+				current.over = true;
+				postEndTurnToServer(current);
+				break;
+			}
+			try{ 
+				Thread.sleep(gInfo.turnTimeMS);
 	    	} catch(InterruptedException ex){
 	    	    Thread.currentThread().interrupt();
 	    	}
+			
+			status = getEndTurnFromServer();
+			
+			if(status.pending) {
+				log.warn("Player " + current.name + " skips turn.");
+				continue;
+			}
+				
+			int result;
+			if(status.endTurn) {
+
+				player  .setDir(isHost(current.name)? status.hostDir : status.guestDir);
+				opponent.setDir(isHost(current.name)? status.guestDir: status.hostDir );
+				current.endTurn = false;
+				
+		    	if(status.frogX >= 0) {
+		    		log.info(Application.name + " adding a frog at " + status.frogX +", "+status.frogY);
+		    		controller.frogs.add(new Position(status.frogX, status.frogY));
+		    	}
+				
+			} else {
+				if(isHost(current.name)) current.hostDir = player.getDir();
+				else current.guestDir = player.getDir();
+				current.endTurn = true;
+				result = move(player);
+			}
+	    	
+	    	log.debug("Player "+Application.name+" starts with current " + current + " and recieves status " + status + " from server.");
+			
+			//start of end turn -- first player registers for end of turn
+			if(!status.endTurn) {
+				log.debug("--- Start Turn ---");
+				current.endTurn = true;			
+				result = move(player);
+			//end of turn -- second player makes turn, new turn starts
+			} else {
+				log.debug("--- End Turn ---");
+				current.endTurn = false;		//end of end turn
+
+				if(isHost(current.name)) current.guestDir = status.guestDir;
+				else current.hostDir = status.hostDir;
+				opponent.setDir(isHost(current.name)? status.guestDir: status.hostDir);
+				move(opponent);
+				result = move(player);
+				
+				Position frog = getFrogMabye();
+				if(frog == null) {
+					current.frogX = -1;
+					current.frogY = -1;
+				} else {
+					current.frogX = frog.getX();
+					current.frogY = frog.getY();
+				}
+				
+			}
+			
+			current.over = true;
+			switch(result) {
+				case -1: log.info(current.name + "'s snake hits itself or collides with border"); break;
+				case -2: log.info(current.name + "'s snake went outside border"); break;
+				case -3: log.info(current.name + "'s snake hits opponent"); break;
+				default: current.over = false;
+			}
+			
+			postEndTurnToServer(current);
+	    	
 	    	view.repaint();
 	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
-	    	
-	    	status = postEndTurnToServer();
-	    	if(status.over)
-	    		break;
-	    	else if(status.waiting) 
-	    		continue;
-	    	else if(status.penalty > 0) {
-	    		gInfo.turnTimeMS -= status.penalty;
-	    	}
-	    	if(status.frogX >= 0) controller.frogs.add(new Position(status.frogX, status.frogY));
-		} while(turn(status.dir) != -1);
+		} while(!current.over);
 		
 		controller.view.setVisible(false);
 		LobbyController.activate();
 	}
+	
+	public boolean isHost(String name) {return name.equals(gInfo.hostName);}
 	
 	public static GameInfo getGameInfoFromServer() {
 		String s = Application.serverAddress + "wait?name="+Application.name;
@@ -156,16 +230,19 @@ public class MultiplayerController extends SingleplayerController {
 		Application.restTemplate.getForObject(s, ResponseEntity.class);
 	}
 	
-	public static Turn postEndTurnToServer() {
-		String s = Application.serverAddress + "endturn";
-		Turn endTurn = new Turn();
-		endTurn.name = Application.name;
-		endTurn.dir = controller.player.getDir();
-		return Application.restTemplate.postForObject(s, endTurn, Turn.class);
+	public static Turn getEndTurnFromServer() {
+		String s = Application.serverAddress + "endturn?name=" + Application.name;
+		return Application.restTemplate.getForObject(s, Turn.class);
 	}
 	
-	public static void putOverToServer() {
-		String s = Application.serverAddress + "over?name="+Application.name;
-		Application.restTemplate.getForObject(s, ResponseEntity.class);
+	//if player passes end.over=true, that means the game ends, he loses.
+	//if server sends information back with end.over=true, the opponent loses.
+	public static Turn postEndTurnToServer(Turn end) {
+		String s = Application.serverAddress + "endturn";
+		log.debug("post from -->  " + end);
+		if(end.name.equals(controller.gInfo.hostName)) end.hostDir = controller.player.getDir();
+		else end.guestDir = controller.player.getDir();
+		log.debug("post to   -->  " + end);
+		return Application.restTemplate.postForObject(s, end, Turn.class);
 	}
 }

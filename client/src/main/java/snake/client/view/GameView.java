@@ -34,6 +34,7 @@ public class GameView extends JFrame implements KeyListener {
         addKeyListener(this);	  
         setFocusable(true);
 	    setFocusTraversalKeysEnabled(false);
+	    setTitle("Snake Game - Singleplayer");
 	}
 	
 	public void paint(Graphics g) {

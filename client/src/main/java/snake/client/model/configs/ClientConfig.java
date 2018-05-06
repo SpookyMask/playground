@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.springframework.web.client.RestTemplate;
 
+import snake.client.Application;
+
 public class ClientConfig {
 	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 8080 \nplayer_name = random";
 	private static final Map<String, String> properties = new HashMap<>();
@@ -40,6 +42,8 @@ public class ClientConfig {
 		} catch (java.nio.file.NoSuchFileException e) {
 			System.err.format("IOException: %s%n", e);
 			System.out.println("Creating defaut config");
+			Application.log.error("IOException: %s%n", e);
+			Application.log.debug("Creating defaut config");
 			write();
 			read();
 		} catch (IOException e) {
