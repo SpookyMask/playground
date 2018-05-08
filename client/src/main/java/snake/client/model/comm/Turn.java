@@ -1,19 +1,26 @@
 package snake.client.model.comm;
 
 public class Turn {
-	public int id;	
 	public String name;
+	public int turnNr;
 	public int hostDir, guestDir;
 	public int frogX, frogY;
-	public long penalty;
-	public boolean endTurn;
-	public boolean over = false;
-	public boolean pending = false;
+	
+	public Turn() {
+		
+	}
+	
+	public Turn( String n ) {
+		name = n;
+		hostDir = 0;
+		guestDir = 2;
+		frogX = -1;
+	}
 	
 	@Override
 	public String toString() {
-		return "Turn [name=" + name + ", hostDir=" + hostDir + ", guestDir=" + guestDir + ", frogX=" + frogX
-				+ ", frogY=" + frogY + ", penalty=" + penalty + ", endTurn=" + endTurn + ", over=" + over + "]";
+		String frog = (frogX != -1)? " (" + frogX + "," + frogY + ")": "";
+		return turnNr + ". Turn [" + hostDir + ", " + guestDir + frog + "] " + name;
 	}
 
 }

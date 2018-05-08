@@ -3,50 +3,51 @@ package snake.server.model.comm;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
+@Table(name="turns")
 public class Turn {
 	
 	@Id
 	@GeneratedValue
+	@JsonIgnore
 	public int id;
-	
+
 	public String name;
+	public int turnNr;
 	public int hostDir, guestDir;
 	public int frogX, frogY;
-	public long penalty;
-	public boolean endTurn;
-	public boolean over = false;
-	public boolean pending = false;
 	
 	
 	public Turn() {
 		
 	}
 	
-	public Turn( String name, int hostDir, int guestDir, int frogX, int frogY, long penalty, boolean endTurn,
-			boolean over, boolean pending) {
-		super();
-		this.name = name;
-		this.hostDir = hostDir;
-		this.guestDir = guestDir;
-		this.frogX = frogX;
-		this.frogY = frogY;
-		this.penalty = penalty;
-		this.endTurn = endTurn;
-		this.over = over;
-		this.pending = pending;
+	public Turn( boolean init ) {
+		name = "server";
+		hostDir = 0;
+		guestDir = 2;
+		frogX = -1;
 	}
 	
-	public Turn pending() {
-		return new Turn( name,  hostDir,  guestDir,  frogX,  frogY,  penalty,  endTurn,
-				 over,  true);
+	
+
+	public Turn(Turn turn) {
+		this.name = turn.name;
+		this.turnNr = turn.turnNr;
+		this.hostDir = turn.hostDir;
+		this.guestDir = turn.guestDir;
+		this.frogX = turn.frogX;
+		this.frogY = turn.frogY;
 	}
 
 	@Override
 	public String toString() {
-		return "Turn [name=" + name + ", hostDir=" + hostDir + ", guestDir=" + guestDir + ", frogX=" + frogX
-				+ ", frogY=" + frogY + ", penalty=" + penalty + ", endTurn=" + endTurn + ", over=" + over + "]";
+		String frog = (frogX != -1)? " (" + frogX + "," + frogY + ")": "";
+		return turnNr + ". Turn [" + hostDir + ", " + guestDir + frog + "] " + name;
 	}
 
 }

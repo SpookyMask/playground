@@ -39,19 +39,28 @@ https://alvinalexander.com/source-code/java/java-timertask-timer-and-scheduleatf
 https://howtodoinjava.com/spring/spring-restful/spring-restful-client-resttemplate-example/
 2.18. Logging
 https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm
+2.19. BAELDUNG Spring Tutorial
+http://www.baeldung.com/spring-tutorial
+2.20 JUnit
+https://junit.org/junit4/faq.html
+2.21. Spring Common application properties
+https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+2.22. Spring Creating a Multi Module Project
+https://spring.io/guides/gs/multi-module/
+2.23.Spring Boot Dashboard 
+https://spring.io/blog/2015/10/08/the-spring-boot-dashboard-in-sts-part-1-local-boot-apps
+https://github.com/spring-projects/spring-boot/issues/7179
+2.24. @Value
+2.25. CloudFoundry
+http://joshlong.com/jl/blogPost/getting_started_with_cloud_foundry_for_java_and_spring_developers.html
+https://stackoverflow.com/questions/29412072/how-to-access-spring-boot-jmx-remotely
+2.26. Many tutorials
+http://www.java2s.com/Code/JavaAPI/javax.swing.table/newDefaultTableModelObjectdataObjectcolumnNames.htm
+2.27. 
 3. ToDos
 *Premature optimization is the root of all evil*
-3.2. Proper encapsulation
-3.3. Proper package structure
-3.4 Board to be Set
-3.5. Database
-4. Communication protocol
-4.1. Structure
-    {c/s},{auth/stts/hsts/join/host/strt/over/turn/quit},{data1, data2, ...}
-4.1.1. {c/s} - Sender: c for client and s for server
-4.1.2. {auth/stts/hsts/join/host/strt/over/turn} - operation type
-4.1.3. {data1, data2, ...} - data fields to be tranfered: stats, hosts and settings.
-5. Dependencies
+3.1. Add game results, writing to database, update userStats, leave game if other player not present
+3.2. Read about Autoboxing, JUnit
 org.springframework.boot
 spring-boot-starter-web
 6. Source code
@@ -61,7 +70,7 @@ grep --include=\*.{java} -rnw ' /home/sh_home/Documents/Kalin/Java/workspace/rep
 mysql -u root -p
 >>> root
 show databases;
-use db_snake;
+use db_snake;x
 show tables;
 select * from users;
 truncate table;             //empty
@@ -69,5 +78,12 @@ drop database db_snake;
 6.3. Application accessible URLs
 //Browser URLs for testing
 http://localhost:8080/stats?name=random
+6.4. 
+    @GetMapping("endturn")
+    public Turn endturn(@PathVariable("name") String name) {
+    	Game game = runningGames.get(name);
+    	return game.getCurrentTurn();
+    }
+7. 
 
 

@@ -13,16 +13,16 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SingleplayerController extends Thread implements Controller {
+	
+	final public static Logger log = Logger.getLogger(SingleplayerController.class);
+	
 	private static SingleplayerController controller;
 	protected GameView view;
 	protected GameInfo gInfo;
 	protected Snake player = null;
-	protected Snake opponent = null;
 	public Set<Position> frogs = null;
 	protected int slot = 0;
 	protected int frogsDrop = 0;
-
-	final public static Logger log = Logger.getLogger(SingleplayerController.class);
 	
 	protected SingleplayerController() {
 		view = GameView.getInstance();
@@ -52,7 +52,7 @@ public class SingleplayerController extends Thread implements Controller {
 	    controller.gInfo = gInfo;
 	    controller.player = new Snake(controller.slot);
 	    controller.frogs = new HashSet<>();
-		GameView.activate(controller.frogs, controller.player, controller.opponent, 
+		GameView.activate(controller.frogs, controller.player, null, 
 				          controller.gInfo.sizeN, controller.gInfo.sizeM);
 		controller.start();
 	}
@@ -61,12 +61,12 @@ public class SingleplayerController extends Thread implements Controller {
 	
 	public int move(Snake snake) {
 		Position head = snake.stretch();
-		log.debug("Snake " + snake + " stretches to " + head);
-		if(head == null) {
+		log.debug("Snake stretches to " + head);
+		if(head == null)
 			return -1;  //snake hits itself
-		} if( !gInfo.noBorder && head.outside() )
+		if( !gInfo.noBorder && head.outside() )
 			return -2; //outside border
-		if( opponent != null && opponent.contains(head) )
+		if( player != snake && player.contains(head) )
 			return -3; //snake hits opponent
 		
 		if(frogs.contains(head)) {
@@ -96,9 +96,7 @@ public class SingleplayerController extends Thread implements Controller {
 		Position p;
 		do{
 			p = Position.random();
-		} while( player.contains(p) ||
-				 (opponent != null && opponent.contains(p)) ||
-				 frogs.contains(p) );
+		} while( player.contains(p) || frogs.contains(p) );
 		return p;
 	}
 	

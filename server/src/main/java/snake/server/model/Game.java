@@ -1,9 +1,17 @@
 package snake.server.model;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -18,6 +26,7 @@ import snake.server.model.repo.IDBService;
 @Entity
 public class Game{
 	
+	@Transient
 	final static Logger log = Logger.getLogger(Game.class);
 	
 	@Autowired
@@ -28,10 +37,10 @@ public class Game{
 	@GeneratedValue
 	public int id;
 	
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	public User host;
-	
-	@ManyToOne
+
+	@ManyToOne(cascade = CascadeType.ALL)
 	public User guest;
 
 	public boolean hostWon, guestWon;
@@ -40,56 +49,53 @@ public class Game{
 	public GameInfo gInfo;
 	
 	@Transient
-	private boolean hostMoved, guestMoved;
+	private boolean hMoved, gMoved;
 	
 	@Transient
 	private Turn current;
 	
-	@Transient
-	private long penaltyStart;
+	@OneToMany
+	public Set<Turn> turns = new HashSet<>();
 	
 	public Game(GameInfo gInfo) {
-		super();
 		this.gInfo = gInfo;
-		current = new Turn("server", 0, 2, -1, 0, 0, false, false, false );
+		
+		current = new Turn(true);
+		current.hostDir = 0;
+		current.guestDir = 2;
 	}
 	
-	public Turn manageTurn(Turn playerTurn) {
-		boolean moved = playerTurn.name.equals(gInfo.hostName)? hostMoved : guestMoved, 
-		        otherMoved= playerTurn.name.equals(gInfo.hostName)? guestMoved : hostMoved;
-		
-		if(playerTurn.over) {
-			log.info("Game Over");
-			hostWon = playerTurn.name.equals(gInfo.hostName);
-			guestWon = playerTurn.name.equals(gInfo.guestName);
-			host = dbService.getUserByName(gInfo.hostName);
-			guest = dbService.getUserByName(gInfo.guestName);
-		}
+	public void setDir(String name, int dir){
+		if(hMoved || gMoved) return;
+		if(name.equals(gInfo.hostName)) current.hostDir = dir;
+		else current.guestDir = dir;
+	}
+	
+	public Turn getTurn(Turn turn) {
+		boolean isHost = turn.name.equals(gInfo.hostName);
+	
+		boolean moved = isHost? hMoved: gMoved;
+		boolean otherMoved = isHost? gMoved: hMoved;
 		
 		if(moved) {
-			log.warn("Player " + playerTurn.name + "'s end turn is pending.");
-			return current.pending();
-		}
-		
-		if(!otherMoved) {
-			current.endTurn = true;
-			if(playerTurn.name.equals(gInfo.hostName)) hostMoved = true;
-			else guestMoved = true;
+			
+		} else if(!otherMoved) {
+
+			current.turnNr++;
+			current.name = turn.name;
+			current.frogX = turn.frogX;
+			current.frogY = turn.frogY;
+			turns.add(current);
+			
+			if(isHost) hMoved = true;
+			else gMoved = true;
+			
 		} else {
-			hostMoved = false;
-			guestMoved = false;
+			if(isHost) gMoved = true;
+			else hMoved = true;
 		}
-		
-		
-		if(playerTurn.name.equals(gInfo.hostName))
-			current.hostDir = playerTurn.hostDir;
-		else
-			current.guestDir = playerTurn.guestDir;
-		
-		return current;
-	}
-	
-	public Turn getCurrentTurn() {
+
+		log.info(current);
 		return current;
 	}
 

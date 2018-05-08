@@ -33,13 +33,10 @@ public class LobbyController {
 
     @GetMapping("stats")
     public User stats(@RequestParam(value="name") String name) {
-    	if(name.equals("random"))
-    		name = Constants.getRandomName();
+    	if(name.equals("random")) name = Constants.getRandomName();
     	User u = dbService.getUserByName(name);
-		if(u == null) {
-    		u = new User(name);
-    		dbService.updateUser(u);
-		}
+//    	User h = dbService.getUserByName(Constants.getRandomName()); hosts.put(h.name, new GameInfo(h.name));
+//    	h = dbService.getUserByName(Constants.getRandomName()); hosts.put(h.name, new GameInfo(h.name));
 		log.debug("User " + name + "  connected.");
     	return u;
     }

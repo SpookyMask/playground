@@ -6,12 +6,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import snake.server.model.Game;
+import snake.server.model.comm.User;
 import snake.server.model.comm.GameInfo;
 import snake.server.model.comm.Turn;
 import snake.server.model.repo.IDBService;
@@ -19,8 +21,7 @@ import snake.server.model.repo.IDBService;
 @RestController
 public class GameController {
 	
-	@Autowired
-	Logger log;
+	Logger log = Logger.getLogger(GameController.class);
 	
 	@Autowired
 	public IDBService dbService;
@@ -60,26 +61,56 @@ public class GameController {
     	return game.gInfo;
     }
 	
-	@PostMapping("endturn")
-	public Turn endturn(@RequestBody Turn turn) {
-		Game game = runningGames.get(turn.name);
-
-		log.info("Player " + turn.name + " ends " + turn);
-		if(turn.over) {
-			game.hostWon = game.gInfo.guestName.equals(turn.name);
-			runningGames.remove(game.gInfo.hostName);
-			runningGames.remove(game.gInfo.guestName);
-			log.info("Game(" + game.gInfo.hostName + " vs. " + game.gInfo.guestName + ") ended, winner is " + 
-			         ( game.hostWon? " host " + game.gInfo.hostName: " guest " + game.gInfo.guestName ));
+    @GetMapping("move")
+    public Turn move(@RequestParam(value="name") String name,
+    		         @RequestParam(value="dir") int dir) {
+    	Game game = runningGames.get(name);
+    	game.setDir(name, dir);
+    	return new Turn();
+    }
+	
+    @PostMapping("endturn")
+    public Turn endturn(@RequestBody Turn turn) {
+    	Game game = runningGames.get(turn.name);
+    	if(game == null) 
+    		return null;
+    	return game.getTurn(turn);
+    }
+	
+	@GetMapping("over")
+	public User over(@RequestParam(value="name") String name,
+			         @RequestParam(value="status") int status) {
+		Game game = runningGames.get(name);
+		
+		//update player stats
+		if(game == null) 
+			return dbService.getUserByName(name);
+		
+		runningGames.remove(game.gInfo.hostName);
+		runningGames.remove(game.gInfo.guestName);
+		
+		game.hostWon = game.gInfo.guestName.equals(name);
+		game.guestWon = !game.hostWon;
+		
+		game.host = dbService.getUserByName(game.gInfo.hostName);
+		game.guest = dbService.getUserByName(game.gInfo.guestName);
+		
+		if(game.hostWon) {
+			game.host.wins++;
+			game.guest.losses++;
+		} else {
+			game.host.wins--;
+			game.guest.losses--;
 		}
 		
-		return game.manageTurn(turn);
+		dbService.updateUser(game.host);
+		dbService.updateUser(game.guest);
+		dbService.updateGame(game);
+		
+		log.info("Game(" + game.gInfo.hostName + " vs. " + game.gInfo.guestName + ") ended, winner is " + 
+		         ( game.hostWon? " host " + game.gInfo.hostName: " guest " + game.gInfo.guestName + " status:" + status ));
+		
+		return dbService.getUserByName(name);
 	}
-	
-    @GetMapping("endturn")
-    public Turn endturn(@RequestParam(value="name") String name) {
-    	Game game = runningGames.get(name);
-    	return game.getCurrentTurn();
-    }	
 
 }

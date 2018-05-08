@@ -6,6 +6,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import snake.server.model.Game;
 import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 
@@ -14,15 +15,28 @@ public class DBService implements IDBService {
 
 	@Autowired
 	UserRepository userRepo;
+
+	@Autowired
+	GameRepository gameRepo;
 	
     public void updateUser(User user) {
     	userRepo.save(user);
     }
     
     public User getUserByName(String name) {
-    	Optional<User> u = userRepo.findByName(name);
-		if(!u.isPresent()) return null;
-    	return u.get();
+    	Optional<User> user = userRepo.findByName(name);
+    	User u;
+		if(user.isPresent()){
+			u = user.get();
+		} else {
+			u = new User(name);
+    		userRepo.save(u);
+		}
+    	return u;
+    }
+	
+    public void updateGame(Game game) {
+    	gameRepo.save(game);
     }
 
 }

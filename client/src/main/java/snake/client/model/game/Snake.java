@@ -2,7 +2,9 @@ package snake.client.model.game;
 
 import java.util.LinkedList;
 
+import snake.client.Application;
 import snake.client.controller.MultiplayerController;
+import snake.client.model.comm.Turn;
 
 public class Snake {
 	public LinkedList<Position> body = new LinkedList<>();
@@ -47,8 +49,8 @@ public class Snake {
     	Position head_next;
     	head_next = body.peekLast().next(coord[direction]);
     	if(noBorder) head_next = head_next.normalize();
-    	else if(head_next.outside()) 
-    		return null;    //snake collides with border
+//    	else if(head_next.outside()) 
+//    		return null;    //snake collides with border
     	
     	if( body.contains(head_next) )
     		return null;	//snake hits itself
@@ -68,9 +70,16 @@ public class Snake {
     		(d == 3 && last_direction == 1 ) )
     		return;	//Can't move backwards!
     	direction = d;
+    	sendDirToServer(d);
     }
     
     public int getDir() {
     	return direction;
     }
+    
+	public static Turn sendDirToServer(int dir) {
+		String s = Application.serverAddress + "move?name=" + Application.name +
+				   "&dir=" + dir;
+		return Application.restTemplate.getForObject(s, Turn.class);
+	}
 }

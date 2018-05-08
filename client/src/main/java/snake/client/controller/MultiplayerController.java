@@ -3,19 +3,19 @@ package snake.client.controller;
 import java.util.HashSet;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
 import snake.client.model.comm.Turn;
+import snake.client.model.comm.User;
 import snake.client.model.configs.Constants;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
 
 public class MultiplayerController extends SingleplayerController {
+
+	protected Snake host = null;
+	protected Snake guest = null;
 	
 	private static MultiplayerController controller = null;
 	
@@ -34,40 +34,40 @@ public class MultiplayerController extends SingleplayerController {
 	public static void onStart(GameInfo gInfo) {
 		controller = new MultiplayerController();
 		boolean isHost = Application.name.equals(gInfo.hostName);
-		int slot = isHost? 0 : 1;
 		controller.view.setTitle("Game(" + gInfo.hostName + " vs. " + gInfo.guestName + ")");
 		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
 	    Snake.noBorder = gInfo.noBorder;
-	    if(Application.name.equals(gInfo.hostName)) controller.slot = gInfo.hostSlot;
-	    else controller.slot = slot;
 	    controller.frogsDrop = gInfo.sizeN * gInfo.sizeM * 3 / 40;
 	    controller.gInfo = gInfo;
-	    controller.player = new Snake(slot);
-		controller.opponent = new Snake((slot+1)%2);
+	    controller.host = new Snake(0);
+		controller.guest = new Snake(1);
+		controller.player = isHost? controller.host: controller.guest;
 	    controller.frogs = new HashSet<>();
-		GameView.activate(controller.frogs, controller.player, controller.opponent, 
+		GameView.activate(controller.frogs, controller.host, controller.guest, 
 				          controller.gInfo.sizeN, controller.gInfo.sizeM);
+		
+		log.info("[Client] " + Application.name + " is " + (Application.name.equals(gInfo.hostName)? "host" : "guest" ));
 		controller.start();
 	}
 	
 	
 	@Override
 	public void onDirUpdate(int newDir) {
-		player.setDir(newDir);
+		host.setDir(newDir);
 	}
 	
 	public int turn(int direction) {
 		int over = 0;
-		opponent.setDir(direction);
+		guest.setDir(direction);
 		
 		if(slot == 0) {
-			over = move(player);
-			move(opponent);
+			over = move(host);
+			move(guest);
 		} else {
-			move(opponent);
-			over = move(player);
+			move(guest);
+			over = move(host);
 		}
 		
 		return over;
@@ -120,101 +120,88 @@ public class MultiplayerController extends SingleplayerController {
 		onStart(gInfo);
 	}
 	
+	@Override
+	public Position getFrogMabye(){
+		if( ThreadLocalRandom.current().nextInt(0, frogsDrop ) != 0)
+			return null;
+		
+		Position p;
+		do{
+			p = Position.random();
+		} while( host.contains(p) ||
+				 (guest != null && guest.contains(p)) ||
+				 frogs.contains(p) );
+		return p;
+	}
+	
 	// Players wait for the end of turn. When the first of them calls <<end of turn>>,
 	// one moves and updates the game state. The second player calls <<end of turn>> and...
 	
 	//player receives info for last opponent turn if any.
 	//if no last opponent turn: player turn and update game state.
-	
 	@Override
 	public void run() {
-		Turn status;
-		Turn current = new Turn();
-		current.name = Application.name;
+		int lastTurnNr = 0;
+		boolean lost = false;
+		User me;
+		
+		log.info("[Client] " + Application.name + " starts game.");
 		do {
-			if(gInfo.turnTimeMS < 0) {
-				log.info("Player " + current.name + " loses due to too much passed time.");
-				current.over = true;
-				postEndTurnToServer(current);
-				break;
-			}
 			try{ 
 				Thread.sleep(gInfo.turnTimeMS);
 	    	} catch(InterruptedException ex){
 	    	    Thread.currentThread().interrupt();
 	    	}
+			//gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
 			
-			status = getEndTurnFromServer();
-			
-			if(status.pending) {
-				log.warn("Player " + current.name + " skips turn.");
-				continue;
+			Turn turn = new Turn(Application.name);
+			Position frog = getFrogMabye();
+			if(frog == null) turn.frogX = -1;
+			else{
+				turn.frogX = frog.getX();
+				turn.frogY = frog.getY();
 			}
-				
-			int result;
-			if(status.endTurn) {
-
-				player  .setDir(isHost(current.name)? status.hostDir : status.guestDir);
-				opponent.setDir(isHost(current.name)? status.guestDir: status.hostDir );
-				current.endTurn = false;
-				
-		    	if(status.frogX >= 0) {
-		    		log.info(Application.name + " adding a frog at " + status.frogX +", "+status.frogY);
-		    		controller.frogs.add(new Position(status.frogX, status.frogY));
-		    	}
-				
-			} else {
-				if(isHost(current.name)) current.hostDir = player.getDir();
-				else current.guestDir = player.getDir();
-				current.endTurn = true;
-				result = move(player);
-			}
-	    	
-	    	log.debug("Player "+Application.name+" starts with current " + current + " and recieves status " + status + " from server.");
 			
-			//start of end turn -- first player registers for end of turn
-			if(!status.endTurn) {
-				log.debug("--- Start Turn ---");
-				current.endTurn = true;			
-				result = move(player);
-			//end of turn -- second player makes turn, new turn starts
-			} else {
-				log.debug("--- End Turn ---");
-				current.endTurn = false;		//end of end turn
+			turn = postEndTurnToServer(turn);
 
-				if(isHost(current.name)) current.guestDir = status.guestDir;
-				else current.hostDir = status.hostDir;
-				opponent.setDir(isHost(current.name)? status.guestDir: status.hostDir);
-				move(opponent);
-				result = move(player);
+			if(turn.turnNr == lastTurnNr + 1) {
 				
-				Position frog = getFrogMabye();
-				if(frog == null) {
-					current.frogX = -1;
-					current.frogY = -1;
-				} else {
-					current.frogX = frog.getX();
-					current.frogY = frog.getY();
+				host.setDir(turn.hostDir);
+				guest.setDir(turn.guestDir);
+				
+				int h = move(host);
+				int g = move(guest);
+				
+				if(turn.frogX != -1)
+					frogs.add(new Position(turn.frogX, turn.frogY));
+				
+				turn.frogX = -1;
+				
+				int status = isHost(Application.name)? h  : g ;
+				lost = status != 0;
+				boolean otherLost = (isHost(Application.name)? g  : h) != 0 ;
+				
+				if(lost) {
+					log.info("[Client] " + Application.name + " loses game.");
+					me = sendGameOverToServer(status);
+					break;
+				} else if(otherLost) {
+					log.info("[Client] " + Application.name + ":  Unknown connection error.");
+					break;
 				}
 				
+				lastTurnNr = turn.turnNr;
+				
+			} else if(turn.turnNr == lastTurnNr) {
+				log.info("[Client] " + Application.name + " waiting for turn "+ (lastTurnNr+1) +" .");
+			    continue;
+			} else {
+				log.error("[Client]" + Application.name + "  turn nr mismatch.");
+				break;
 			}
 			
-			current.over = true;
-			switch(result) {
-				case -1: log.info(current.name + "'s snake hits itself or collides with border"); break;
-				case -2: log.info(current.name + "'s snake went outside border"); break;
-				case -3: log.info(current.name + "'s snake hits opponent"); break;
-				default: current.over = false;
-			}
-			
-			postEndTurnToServer(current);
-	    	
-	    	view.repaint();
-	    	gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
-		} while(!current.over);
-		
-		controller.view.setVisible(false);
-		LobbyController.activate();
+			view.repaint();
+		} while(!lost);
 	}
 	
 	public boolean isHost(String name) {return name.equals(gInfo.hostName);}
@@ -222,12 +209,6 @@ public class MultiplayerController extends SingleplayerController {
 	public static GameInfo getGameInfoFromServer() {
 		String s = Application.serverAddress + "wait?name="+Application.name;
 		return Application.restTemplate.getForObject(s, GameInfo.class);
-	}
-	
-	public static void putDirToServer(int dir) {
-		String s = Application.serverAddress + "aim?name="+Application.name+
-				   "&dir="+(new Integer(dir)).toString();
-		Application.restTemplate.getForObject(s, ResponseEntity.class);
 	}
 	
 	public static Turn getEndTurnFromServer() {
@@ -239,10 +220,15 @@ public class MultiplayerController extends SingleplayerController {
 	//if server sends information back with end.over=true, the opponent loses.
 	public static Turn postEndTurnToServer(Turn end) {
 		String s = Application.serverAddress + "endturn";
-		log.debug("post from -->  " + end);
-		if(end.name.equals(controller.gInfo.hostName)) end.hostDir = controller.player.getDir();
-		else end.guestDir = controller.player.getDir();
-		log.debug("post to   -->  " + end);
+		//log.debug("post from -->  " + end);
+//		if(end.name.equals(controller.gInfo.hostName)) end.hostDir = controller.host.getDir();
+//		else end.guestDir = controller.host.getDir();
+		//log.debug("post to   -->  " + end);
 		return Application.restTemplate.postForObject(s, end, Turn.class);
+	}
+	
+	public static User sendGameOverToServer(int status) {
+		String s = Application.serverAddress + "over?name=" + Application.name + "&status=" + status;
+		return Application.restTemplate.getForObject(s, User.class);
 	}
 }

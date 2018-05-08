@@ -21,9 +21,14 @@ public class GameInfo {
 	
 	public int decreaseTimeMS = Constants.decreaseTimeMS;
 	
-	public GameInfo(){
+	public GameInfo() {
+		
 	}
 	
+	public GameInfo(String hostName) {
+		this.hostName = hostName;
+	}
+
 	public void setTimeStamp() {
 		startsTimeStamp = System.currentTimeMillis() + Constants.gameStartDelay; 
 		startsIn = Constants.gameStartDelay;

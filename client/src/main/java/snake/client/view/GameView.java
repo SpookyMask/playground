@@ -17,8 +17,8 @@ import snake.client.model.game.Snake;
 @Component
 public class GameView extends JFrame implements KeyListener {
 	private static GameView view = new GameView();
-	public Snake player = null;
-	public Snake opponent = null;
+	public Snake host = null;
+	public Snake guest = null;
 	public Set<Position> frogs = new HashSet<>();
 	
 	private GameView(){
@@ -46,24 +46,24 @@ public class GameView extends JFrame implements KeyListener {
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
 	    g.setColor(Color.BLACK);
-	    for(Position p : player.getList())
+	    for(Position p : host.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
-	    if(opponent == null) return;
-	    for(Position p : opponent.getList())
+	    if(guest == null) return;
+	    for(Position p : guest.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
     }
 
 	@Override
 	public void keyPressed(KeyEvent e) {
         if(e.getKeyCode()== KeyEvent.VK_RIGHT)
-        	player.setDir(0);
+        	host.setDir(0);
         else if(e.getKeyCode()== KeyEvent.VK_LEFT)
-        	player.setDir(2);
+        	host.setDir(2);
         else if(e.getKeyCode()== KeyEvent.VK_DOWN)
-        	player.setDir(1);
+        	host.setDir(1);
         else if(e.getKeyCode()== KeyEvent.VK_UP)
-        	player.setDir(3);
+        	host.setDir(3);
 	}
 
 	@Override
@@ -71,11 +71,11 @@ public class GameView extends JFrame implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
-	public static void activate(Set<Position> frogs, Snake player, Snake opponent, int n, int m) {
+	public static void activate(Set<Position> frogs, Snake host, Snake guest, int n, int m) {
 		if(view == null) view = new GameView();
 		view.frogs = frogs;
-		view.player = player;
-		view.opponent = opponent;
+		view.host = host;
+		view.guest = guest;
 		view.setSize(n*20+20 , m*20+40);
 		view.setVisible(true);
 	}

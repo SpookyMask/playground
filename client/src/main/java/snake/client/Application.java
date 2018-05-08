@@ -12,7 +12,6 @@ import snake.client.model.configs.ClientConfig;
 @SpringBootApplication
 public class Application{
 	
-//	@Autowired
 	public static RestTemplate restTemplate;
 	
 	public static String serverAddress;
@@ -34,10 +33,5 @@ public class Application{
 		restTemplate = builder.build();
 		return restTemplate;
 	}
-	
-//	@Bean
-//	public Logger log() {
-//		return Logger.getLogger(Application.class);
-//	}
 
 }

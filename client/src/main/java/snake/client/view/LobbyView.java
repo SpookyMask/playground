@@ -19,9 +19,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.springframework.stereotype.Component;
 
+import snake.client.Application;
 import snake.client.controller.LobbyController;
 import snake.client.model.comm.GameInfo;
 import snake.client.model.comm.User;
@@ -82,8 +84,9 @@ public class LobbyView extends JFrame {
 	    mainPane.add(statsPane, BorderLayout.PAGE_START);
 	    
 	    pane = new JPanel();
-	    String[] columnNames = {"Hosts", "N", "M", "border", "turnMS", "decrMS"};
-	    table = new JTable(null, columnNames);
+	    //DefaultTableModel model = new DefaultTableModel(data.length, 6);
+	    table = new JTable(new DefaultTableModel(new String[][] {}, columnNames));
+	    //table = new JTable(new String[][] {}, columnNames);
 	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    table.setPreferredScrollableViewportSize(new Dimension(100, 70));
 	    table.setFillsViewportHeight(true);
@@ -115,8 +118,11 @@ public class LobbyView extends JFrame {
 	
 	//returns username
 	public String getSelectedHost() {
-		if(table.getSelectedRow() == -1) return null;
-		return hosts[table.getSelectedRow()].hostName;
+
+		if(table.getSelectedRow() != -1)
+			return hosts[table.getSelectedRow()].hostName;
+
+		return null;
 	}
 	
 	public void setStats(User s) {
@@ -129,21 +135,53 @@ public class LobbyView extends JFrame {
 
 	public void setHosts(GameInfo[] hosts) {
 		this.hosts = hosts;
-		String[][] data = new String[hosts.length][];
-		int i=0;
-		for(GameInfo h: hosts)
-			data[i++] = new String[] {
-					h.hostName,
-					(new Integer(h.sizeN)).toString(),
-					(new Integer(h.sizeM)).toString(),
-					(new Boolean(h.noBorder)).toString(),
-					(new Integer(h.turnTimeMS)).toString(),
-					(new Integer(h.decreaseTimeMS)).toString()
-			};
-		DefaultTableModel model = new DefaultTableModel(data.length, 6);
-		model.setDataVector(data, columnNames);
-		table.setModel(model);
-        repaint();
+		//String[][] data = new String[hosts.length][6];
+		Vector<Vector<String>> data = new Vector<>();
+		for(GameInfo h: hosts) {
+			Vector<String> row = new Vector<>(6);
+			row.add(h.hostName);
+			row.add(new Integer(h.sizeN).toString());
+            row.add(new Integer(h.sizeM).toString());
+            row.add(new Boolean(h.noBorder).toString());
+            row.add(new Integer(h.turnTimeMS).toString());
+            row.add(new Integer(h.decreaseTimeMS).toString());
+            data.add(row);
+		}
+		
+//		for(GameInfo h: hosts)
+//			data[i++] = new String[] {
+//					h.hostName,
+//					(new Integer(h.sizeN)).toString(),
+//					(new Integer(h.sizeM)).toString(),
+//					(new Boolean(h.noBorder)).toString(),
+//					(new Integer(h.turnTimeMS)).toString(),
+//					(new Integer(h.decreaseTimeMS)).toString()
+//			};
+		
+//		DefaultTableModel model = new DefaultTableModel(data.length, 6);
+//		model.setDataVector(data, columnNames);
+//		table.setModel(model);
+		
+//	    Vector<String> rowOne = new Vector<String>();
+//	    rowOne.addElement("Row1-Column1");
+//	    rowOne.addElement("Row1-Column2");
+//	    rowOne.addElement("Row1-Column3");
+//	    
+//	    Vector<String> rowTwo = new Vector<String>();
+//	    rowTwo.addElement("Row2-Column1");
+//	    rowTwo.addElement("Row2-Column2");
+//	    rowTwo.addElement("Row2-Column3");
+//	    
+//	    Vector<Vector<String>> v = new Vector<>();
+	    DefaultTableModel model = (DefaultTableModel) table.getModel();
+		model.getDataVector().removeAllElements();
+		model.getDataVector().addAll(data);
+		model.fireTableDataChanged();
+		
+	    //model.fireTableDataChanged();
+	    
+
+        //repaint();
 	}
 	
 	public static LobbyView activate() {
