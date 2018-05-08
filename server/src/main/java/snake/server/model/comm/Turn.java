@@ -21,6 +21,8 @@ public class Turn {
 	public int hostDir, guestDir;
 	public int frogX, frogY;
 	
+	public String gState;
+	
 	
 	public Turn() {
 		
@@ -42,6 +44,12 @@ public class Turn {
 		this.guestDir = turn.guestDir;
 		this.frogX = turn.frogX;
 		this.frogY = turn.frogY;
+	}
+	
+	public Turn(String name, int frogX, int frogY) {
+		this.name = name;
+		this.frogX = frogX;
+		this.frogY = frogY;
 	}
 
 	@Override

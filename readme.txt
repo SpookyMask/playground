@@ -56,7 +56,9 @@ http://joshlong.com/jl/blogPost/getting_started_with_cloud_foundry_for_java_and_
 https://stackoverflow.com/questions/29412072/how-to-access-spring-boot-jmx-remotely
 2.26. Many tutorials
 http://www.java2s.com/Code/JavaAPI/javax.swing.table/newDefaultTableModelObjectdataObjectcolumnNames.htm
-2.27. 
+2.27. https://text-compare.com/
+2.28. Run logic at start of spring
+http://www.baeldung.com/running-setup-logic-on-startup-in-spring
 3. ToDos
 *Premature optimization is the root of all evil*
 3.1. Add game results, writing to database, update userStats, leave game if other player not present
@@ -84,6 +86,7 @@ http://localhost:8080/stats?name=random
     	Game game = runningGames.get(name);
     	return game.getCurrentTurn();
     }
+6.5. git ls-files | xargs cat | wc -l
 7. 
 
 

@@ -1,7 +1,10 @@
 package snake.client.controller;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.log4j.Logger;
 
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
@@ -13,9 +16,15 @@ import snake.client.model.game.Snake;
 import snake.client.view.GameView;
 
 public class MultiplayerController extends SingleplayerController {
+	
+	final public static Logger log = Logger.getLogger(MultiplayerController.class);
 
-	protected Snake host = null;
-	protected Snake guest = null;
+	private Snake host = null;
+	private Snake guest = null;
+	private String gameState;
+	boolean over = false;
+	int status = 0;
+	
 	
 	private static MultiplayerController controller = null;
 	
@@ -48,7 +57,6 @@ public class MultiplayerController extends SingleplayerController {
 		GameView.activate(controller.frogs, controller.host, controller.guest, 
 				          controller.gInfo.sizeN, controller.gInfo.sizeM);
 		
-		log.info("[Client] " + Application.name + " is " + (Application.name.equals(gInfo.hostName)? "host" : "guest" ));
 		controller.start();
 	}
 	
@@ -134,6 +142,33 @@ public class MultiplayerController extends SingleplayerController {
 		return p;
 	}
 	
+	private String serialize() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("h[");
+		String prefix = "";
+		for(Position p : host.getList()) {
+			sb.append(prefix);
+			prefix = ",";
+			sb.append(p);
+		}
+		sb.append("] g[");
+		prefix = "";
+		for(Position p : guest.getList()) {
+			sb.append(prefix);
+			prefix = ",";
+			sb.append(p);
+		}
+		sb.append("] f[");
+		prefix = "";
+		for(Position p : frogs) {
+			sb.append(prefix);
+			prefix = ",";
+			sb.append(p);
+		}
+		sb.append("] over=" + over + " status=" + status);
+		return sb.toString();
+	}
+	
 	// Players wait for the end of turn. When the first of them calls <<end of turn>>,
 	// one moves and updates the game state. The second player calls <<end of turn>> and...
 	
@@ -141,11 +176,8 @@ public class MultiplayerController extends SingleplayerController {
 	//if no last opponent turn: player turn and update game state.
 	@Override
 	public void run() {
-		int lastTurnNr = 0;
-		boolean lost = false;
-		User me;
 		
-		log.info("[Client] " + Application.name + " starts game.");
+		log.info("[" + Application.name + "] starts game as " + (Application.name.equals(gInfo.hostName)? "host." : "guest." ));
 		do {
 			try{ 
 				Thread.sleep(gInfo.turnTimeMS);
@@ -154,54 +186,33 @@ public class MultiplayerController extends SingleplayerController {
 	    	}
 			//gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
 			
-			Turn turn = new Turn(Application.name);
 			Position frog = getFrogMabye();
-			if(frog == null) turn.frogX = -1;
-			else{
-				turn.frogX = frog.getX();
-				turn.frogY = frog.getY();
+			
+			Turn turn = postEndTurnToServer(new Turn(Application.name, frog, gameState));
+			
+			if(turn == null) {
+				continue;
 			}
 			
-			turn = postEndTurnToServer(turn);
-
-			if(turn.turnNr == lastTurnNr + 1) {
-				
-				host.setDir(turn.hostDir);
-				guest.setDir(turn.guestDir);
-				
-				int h = move(host);
-				int g = move(guest);
-				
-				if(turn.frogX != -1)
-					frogs.add(new Position(turn.frogX, turn.frogY));
-				
-				turn.frogX = -1;
-				
-				int status = isHost(Application.name)? h  : g ;
-				lost = status != 0;
-				boolean otherLost = (isHost(Application.name)? g  : h) != 0 ;
-				
-				if(lost) {
-					log.info("[Client] " + Application.name + " loses game.");
-					me = sendGameOverToServer(status);
-					break;
-				} else if(otherLost) {
-					log.info("[Client] " + Application.name + ":  Unknown connection error.");
-					break;
-				}
-				
-				lastTurnNr = turn.turnNr;
-				
-			} else if(turn.turnNr == lastTurnNr) {
-				log.info("[Client] " + Application.name + " waiting for turn "+ (lastTurnNr+1) +" .");
-			    continue;
-			} else {
-				log.error("[Client]" + Application.name + "  turn nr mismatch.");
-				break;
-			}
+			turnNr = turn.turnNr;
+			
+			host.setDir(turn.hostDir);
+			guest.setDir(turn.guestDir);
+			
+			int h = move(host);
+			int g = move(guest);
+			
+			if(turn.frogX != -1)
+			    frogs.add(new Position(turn.frogX, turn.frogY));
+			
+		    status = isHost(Application.name)? h  : g ;
+			over = h != 0 || g != 0;
+			
+//			gameState = serialize();
+//			log.warn(getChecksumFromServer(gameState));
 			
 			view.repaint();
-		} while(!lost);
+		} while(!over);
 	}
 	
 	public boolean isHost(String name) {return name.equals(gInfo.hostName);}
@@ -216,19 +227,25 @@ public class MultiplayerController extends SingleplayerController {
 		return Application.restTemplate.getForObject(s, Turn.class);
 	}
 	
-	//if player passes end.over=true, that means the game ends, he loses.
-	//if server sends information back with end.over=true, the opponent loses.
 	public static Turn postEndTurnToServer(Turn end) {
 		String s = Application.serverAddress + "endturn";
-		//log.debug("post from -->  " + end);
-//		if(end.name.equals(controller.gInfo.hostName)) end.hostDir = controller.host.getDir();
-//		else end.guestDir = controller.host.getDir();
-		//log.debug("post to   -->  " + end);
 		return Application.restTemplate.postForObject(s, end, Turn.class);
 	}
 	
 	public static User sendGameOverToServer(int status) {
 		String s = Application.serverAddress + "over?name=" + Application.name + "&status=" + status;
 		return Application.restTemplate.getForObject(s, User.class);
+	}
+    
+	public static Turn sendDirToServer(int dir) {
+		String s = Application.serverAddress + "move?name=" + Application.name +
+				   "&dir=" + dir;
+		return Application.restTemplate.getForObject(s, Turn.class);
+	}
+    
+	public static String getChecksumFromServer(String checksum) {
+		String s = Application.serverAddress + "move?name=" + Application.name +
+				   "&checksum=" + checksum;
+		return Application.restTemplate.getForObject(s, String.class);
 	}
 }

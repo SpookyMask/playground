@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import snake.client.Application;
 import snake.client.controller.MenuController;
+import snake.client.model.configs.Constants;
 
 @Component
 public class MenuView extends JFrame {
@@ -49,7 +50,7 @@ public class MenuView extends JFrame {
 	    setContentPane(mainPane);
 	    setSize(400,400);
 	    setLocation(200, 200);
-	    setVisible(true);
+	    setVisible(!Constants.fastMulti);
 	}
 	
 	public static MenuView activate() {

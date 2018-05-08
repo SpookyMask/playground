@@ -70,16 +70,10 @@ public class Snake {
     		(d == 3 && last_direction == 1 ) )
     		return;	//Can't move backwards!
     	direction = d;
-    	sendDirToServer(d);
     }
     
     public int getDir() {
     	return direction;
     }
     
-	public static Turn sendDirToServer(int dir) {
-		String s = Application.serverAddress + "move?name=" + Application.name +
-				   "&dir=" + dir;
-		return Application.restTemplate.getForObject(s, Turn.class);
-	}
 }

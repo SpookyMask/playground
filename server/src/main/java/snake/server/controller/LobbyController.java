@@ -25,8 +25,7 @@ public class LobbyController {
 
 	public static Map<String, GameInfo> hosts = new HashMap<>();
 	
-	@Autowired
-	Logger log;
+	Logger log = Logger.getLogger(LobbyController.class);
 	
 	@Autowired
 	public IDBService dbService;

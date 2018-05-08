@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 
 import org.springframework.stereotype.Component;
 
+import snake.client.controller.MultiplayerController;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 
@@ -56,14 +57,18 @@ public class GameView extends JFrame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		int dir = -1;
         if(e.getKeyCode()== KeyEvent.VK_RIGHT)
-        	host.setDir(0);
+        	dir = 0;
         else if(e.getKeyCode()== KeyEvent.VK_LEFT)
-        	host.setDir(2);
+        	dir = 2;
         else if(e.getKeyCode()== KeyEvent.VK_DOWN)
-        	host.setDir(1);
+        	dir = 1;
         else if(e.getKeyCode()== KeyEvent.VK_UP)
-        	host.setDir(3);
+        	dir = 3;
+        else
+        	return;
+        MultiplayerController.sendDirToServer(dir);
 	}
 
 	@Override

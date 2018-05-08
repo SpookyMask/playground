@@ -9,4 +9,8 @@ public class Constants {
 	
 	public static long hostCheckInterval = 2000;
 	public static long defaultDelay = 1300;
+	
+	public static String[] point = new String[]{"RIGHT", "UP", "LEFT", "DOWN"};
+	
+	public static boolean fastMulti = true;
 }

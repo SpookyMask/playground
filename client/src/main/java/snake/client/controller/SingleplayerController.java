@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
+import snake.client.model.configs.Constants;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
@@ -23,6 +24,7 @@ public class SingleplayerController extends Thread implements Controller {
 	public Set<Position> frogs = null;
 	protected int slot = 0;
 	protected int frogsDrop = 0;
+	protected int turnNr = 0;
 	
 	protected SingleplayerController() {
 		view = GameView.getInstance();
@@ -61,7 +63,7 @@ public class SingleplayerController extends Thread implements Controller {
 	
 	public int move(Snake snake) {
 		Position head = snake.stretch();
-		log.debug("Snake stretches to " + head);
+		log.debug(turnNr + ". Snake stretches " + Constants.point[snake.getDir()] + "->" + head);
 		if(head == null)
 			return -1;  //snake hits itself
 		if( !gInfo.noBorder && head.outside() )

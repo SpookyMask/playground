@@ -11,6 +11,8 @@ public class Constants {
 	public static long hostCheckInterval = 2000;
 	public static long gameStartDelay = 3000;
 	
+	public static String[] point = new String[]{"RIGHT", "UP", "LEFT", "DOWN"};
+	
 	public static String[] funnyNames = new String[]{ 
 		"Alf",
 		"JimBob",

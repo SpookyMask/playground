@@ -66,6 +66,7 @@ public class GameController {
     		         @RequestParam(value="dir") int dir) {
     	Game game = runningGames.get(name);
     	game.setDir(name, dir);
+    	log.warn("direction " + dir + " -> " + name);
     	return new Turn();
     }
 	
@@ -75,6 +76,14 @@ public class GameController {
     	if(game == null) 
     		return null;
     	return game.getTurn(turn);
+    }
+    
+    @GetMapping("check")
+    public Turn check(@RequestParam(value="name") String name,
+    		         @RequestParam(value="checksum") String cs) {
+    	Game game = runningGames.get(name);
+    	game.setChecksum(name, cs);
+    	return new Turn();
     }
 	
 	@GetMapping("over")
