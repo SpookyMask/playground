@@ -77,14 +77,6 @@ public class GameController {
     		return null;
     	return game.getTurn(turn);
     }
-    
-    @GetMapping("check")
-    public Turn check(@RequestParam(value="name") String name,
-    		         @RequestParam(value="checksum") String cs) {
-    	Game game = runningGames.get(name);
-    	game.setChecksum(name, cs);
-    	return new Turn();
-    }
 	
 	@GetMapping("over")
 	public User over(@RequestParam(value="name") String name,
@@ -108,12 +100,10 @@ public class GameController {
 			game.host.wins++;
 			game.guest.losses++;
 		} else {
-			game.host.wins--;
-			game.guest.losses--;
+			game.guest.wins++;
+			game.host.losses++;
 		}
 		
-		dbService.updateUser(game.host);
-		dbService.updateUser(game.guest);
 		dbService.updateGame(game);
 		
 		log.info("Game(" + game.gInfo.hostName + " vs. " + game.gInfo.guestName + ") ended, winner is " + 

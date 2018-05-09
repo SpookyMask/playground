@@ -1,12 +1,9 @@
 package snake.client;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.log4j.Logger;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -30,8 +27,21 @@ class EventListenerForMFastultiplayer {
  
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
+    	User me;
     	if(Constants.fastMulti) {
-			User me = LobbyController.getStatsFromServer();
+    		do{
+	    		try {
+	    		    me = LobbyController.getStatsFromServer();
+	    			break;
+	    		} catch(org.springframework.web.client.ResourceAccessException e) {
+	    			try{ 
+	    				Thread.sleep(100);
+	    	    	} catch(InterruptedException ex){
+	    	    	    Thread.currentThread().interrupt();
+	    	    	}
+	    		}
+    		}
+	    	while(true);
 			Application.name = me.name;
 			GameInfo[] hosts = LobbyController.getHostsFromServer();
 			

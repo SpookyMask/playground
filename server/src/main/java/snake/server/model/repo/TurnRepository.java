@@ -3,7 +3,8 @@ package snake.server.model.repo;
 import org.springframework.data.repository.CrudRepository;
 
 import snake.server.model.Game;
+import snake.server.model.comm.Turn;
 
-public interface GameRepository extends CrudRepository<Game, Long> {
+public interface TurnRepository extends CrudRepository<Turn, Long> {
 	
 }

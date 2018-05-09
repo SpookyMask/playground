@@ -30,7 +30,7 @@ public class GameView extends JFrame implements KeyListener {
 		setBackground(Color.WHITE);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setSize(200 , 450);
-	    setLocation(200, 200);
+	    setLocation(50, 200);
 	    setVisible(false);
         addKeyListener(this);	  
         setFocusable(true);
@@ -46,11 +46,12 @@ public class GameView extends JFrame implements KeyListener {
 	    for(Position p : frogs)
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
-	    g.setColor(Color.BLACK);
+	    g.setColor(new Color(60,0,0));
 	    for(Position p : host.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
 	    
 	    if(guest == null) return;
+	    g.setColor(new Color(0,0,60));
 	    for(Position p : guest.getList())
 	    	g.fillRect(p.getX()*20+5,p.getY()*20+30, 20, 20);
     }

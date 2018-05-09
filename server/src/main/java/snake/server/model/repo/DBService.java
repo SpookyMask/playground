@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import snake.server.model.Game;
+import snake.server.model.comm.Turn;
 import snake.server.model.comm.User;
 import snake.server.model.configs.Constants;
 
@@ -15,6 +16,9 @@ public class DBService implements IDBService {
 
 	@Autowired
 	UserRepository userRepo;
+
+	@Autowired
+	TurnRepository turnRepo;
 
 	@Autowired
 	GameRepository gameRepo;
@@ -36,6 +40,8 @@ public class DBService implements IDBService {
     }
 	
     public void updateGame(Game game) {
+		updateUser(game.host);
+		updateUser(game.guest);
     	gameRepo.save(game);
     }
 

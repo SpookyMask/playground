@@ -12,5 +12,6 @@ public class Constants {
 	
 	public static String[] point = new String[]{"RIGHT", "UP", "LEFT", "DOWN"};
 	
-	public static boolean fastMulti = true;
+	//Check if only multiplayer is to be tested
+	public static boolean fastMulti = false;
 }

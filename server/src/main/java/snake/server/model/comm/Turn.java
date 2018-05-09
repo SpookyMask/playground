@@ -20,9 +20,8 @@ public class Turn {
 	public int turnNr;
 	public int hostDir, guestDir;
 	public int frogX, frogY;
-	
-	public String gState;
-	
+	public long lap;
+	public String checksum;
 	
 	public Turn() {
 		
@@ -44,6 +43,8 @@ public class Turn {
 		this.guestDir = turn.guestDir;
 		this.frogX = turn.frogX;
 		this.frogY = turn.frogY;
+		this.lap = turn.lap;
+		this.checksum = turn.checksum;
 	}
 	
 	public Turn(String name, int frogX, int frogY) {

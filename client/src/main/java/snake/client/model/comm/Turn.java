@@ -7,8 +7,8 @@ public class Turn {
 	public int turnNr;
 	public int hostDir, guestDir;
 	public int frogX, frogY;
-	
-	public String gState;
+	public long lap;
+	public String checksum;
 	
 	public Turn() {
 		
@@ -21,7 +21,7 @@ public class Turn {
 		frogX = -1;
 	}
 	
-	public Turn( String n, Position frog, String gameState ) {
+	public Turn( String n, Position frog, long l, String cSum ) {
 		name = n;
 		if(frog == null)
 			frogX = -1;
@@ -29,7 +29,8 @@ public class Turn {
 			frogX = frog.getX();
 			frogY = frog.getY();
 		}
-		gState = gameState;
+		lap = l;
+		checksum = cSum;
 	}
 	
 	@Override

@@ -44,6 +44,8 @@ public class MultiplayerController extends SingleplayerController {
 		controller = new MultiplayerController();
 		boolean isHost = Application.name.equals(gInfo.hostName);
 		controller.view.setTitle("Game(" + gInfo.hostName + " vs. " + gInfo.guestName + ")");
+		if(gInfo.guestName.equals(Application.name))
+			controller.view.setLocation(600, 200);
 		controller.view.setVisible(true);
 		Position.sizeN = gInfo.sizeN;
 		Position.sizeM = gInfo.sizeM;
@@ -67,18 +69,18 @@ public class MultiplayerController extends SingleplayerController {
 	}
 	
 	public int turn(int direction) {
-		int over = 0;
+		int status = 0;
 		guest.setDir(direction);
 		
 		if(slot == 0) {
-			over = move(host);
+			status = move(host);
 			move(guest);
 		} else {
 			move(guest);
-			over = move(host);
+			status = move(host);
 		}
 		
-		return over;
+		return status;
 	}
 	
 	public void waitForGuest() {
@@ -144,7 +146,7 @@ public class MultiplayerController extends SingleplayerController {
 	
 	private String serialize() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("h[");
+		sb.append(turnNr + " h[");
 		String prefix = "";
 		for(Position p : host.getList()) {
 			sb.append(prefix);
@@ -176,19 +178,27 @@ public class MultiplayerController extends SingleplayerController {
 	//if no last opponent turn: player turn and update game state.
 	@Override
 	public void run() {
+		gameState = serialize();
 		
 		log.info("[" + Application.name + "] starts game as " + (Application.name.equals(gInfo.hostName)? "host." : "guest." ));
+		long lastLap = System.currentTimeMillis();
 		do {
-			try{ 
+			try{
+				if( gInfo.turnTimeMS < 0) {
+					status = -5;
+					log.warn("Game ends: time ended.");
+					break;
+				}
 				Thread.sleep(gInfo.turnTimeMS);
 	    	} catch(InterruptedException ex){
 	    	    Thread.currentThread().interrupt();
 	    	}
-			//gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
+			gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
 			
 			Position frog = getFrogMabye();
 			
-			Turn turn = postEndTurnToServer(new Turn(Application.name, frog, gameState));
+			long lap = System.currentTimeMillis();
+			Turn turn = postEndTurnToServer(new Turn(Application.name, frog, lap - lastLap, serialize()));
 			
 			if(turn == null) {
 				continue;
@@ -208,11 +218,18 @@ public class MultiplayerController extends SingleplayerController {
 		    status = isHost(Application.name)? h  : g ;
 			over = h != 0 || g != 0;
 			
-//			gameState = serialize();
-//			log.warn(getChecksumFromServer(gameState));
+			gameState = serialize();
+			
+			lastLap = lap;
 			
 			view.repaint();
 		} while(!over);
+		
+		if(status != 0)
+			sendGameOverToServer(status);
+		
+		view.dispose();
+		LobbyController.activate();
 	}
 	
 	public boolean isHost(String name) {return name.equals(gInfo.hostName);}
@@ -242,10 +259,5 @@ public class MultiplayerController extends SingleplayerController {
 				   "&dir=" + dir;
 		return Application.restTemplate.getForObject(s, Turn.class);
 	}
-    
-	public static String getChecksumFromServer(String checksum) {
-		String s = Application.serverAddress + "move?name=" + Application.name +
-				   "&checksum=" + checksum;
-		return Application.restTemplate.getForObject(s, String.class);
-	}
+	
 }
