@@ -2,10 +2,6 @@ package snake.client.model.game;
 
 import java.util.LinkedList;
 
-import snake.client.Application;
-import snake.client.controller.MultiplayerController;
-import snake.client.model.comm.Turn;
-
 public class Snake {
 	public LinkedList<Position> body = new LinkedList<>();
     private int direction = 0;
@@ -61,6 +57,14 @@ public class Snake {
     
     public void shrink() {
         body.remove();
+    }
+    
+    public boolean validate(int d) {
+    	boolean moveBackwards = (d == 0 && last_direction == 2 ) ||
+				        		(d == 1 && last_direction == 3 ) ||
+				        		(d == 2 && last_direction == 0 ) ||
+				        		(d == 3 && last_direction == 1 );
+    	return !moveBackwards;
     }
 
     public void setDir(int d) {

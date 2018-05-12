@@ -1,3 +1,4 @@
 server_ip_address = localhost
 server_port = 8080 
 player_name = random
+simulation=true

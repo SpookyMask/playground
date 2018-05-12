@@ -1,6 +1,8 @@
 Snake game Server Client Application
+Release 1.0.0
 
-1. Built on Lubuntu using Spring Tool Suite, MySQL, mysql-connector-java-5.1.46
+1. Built on Lubuntu using Spring Tool Suite 3.9.4 with Maven
+See #7 for build script
 2. Used resources:
 2.1. Java TCP Sockets and Swing Tutorial - Swing GUI, events
 https://www.cise.ufl.edu/~amyles/tutorials/tcpchat/
@@ -87,6 +89,26 @@ http://localhost:8080/stats?name=random
     	return game.getCurrentTurn();
     }
 6.5. git ls-files | xargs cat | wc -l
-7. 
+6.6. mvn clean package
+terminal -e java -jar ./client.1.0.0.jar
+mvn package && java -jar target/snake-server-1.0.0.jar
+6.7. ln -s foo/ bar
+ln -s /home/sh_home/Documents/Kalin/Java/workspace/playground  repo
+7. Build script
+cd client
+mvn clean package
+cp ./target/client-1.0.0.jar ../snake-client-1.0.0.jar
+cd ../server
+mvn clean package
+cp ./target/server-1.0.0.jar ../snake-server-1.0.0.jar
+cd ..
+java -jar ./snake-client-1.0.0.jar
+java -jar ./snake-server-1.0.0.jar
+
+x-terminal-emulator
+java -jar ./snake-client-1.0.0.jar
+x-terminal-emulator -e "java -jar repo/snake-client-1.0.0.jar"
+
+
 
 

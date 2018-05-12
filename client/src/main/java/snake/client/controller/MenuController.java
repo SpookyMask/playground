@@ -2,7 +2,7 @@ package snake.client.controller;
 
 import snake.client.view.MenuView;
 
-public class MenuController implements Controller {
+public class MenuController {
 	private static MenuController controller = null;
 	private static MenuView view = null;
 	

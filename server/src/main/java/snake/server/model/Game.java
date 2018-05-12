@@ -13,11 +13,12 @@ import javax.persistence.Transient;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import snake.client.model.configs.Constants;
 import snake.server.model.comm.GameInfo;
 import snake.server.model.comm.Turn;
 import snake.server.model.comm.User;
 import snake.server.model.repo.IDBService;
+
+
 
 @Entity
 public class Game{
@@ -51,95 +52,100 @@ public class Game{
 	private int turnNr = 0;
 	
 	@Transient
-	private Turn current = null;
+	private String checksum = "n/a";
 	
 	@Transient
-	private String checksum;
-	
-	@Transient
-	String first;
-	
-	public Game(GameInfo gInfo) {
-		laps.put(gInfo.hostName, System.currentTimeMillis() + Constants.gameStartDelay);
-		laps.put(gInfo.guestName, System.currentTimeMillis() + Constants.gameStartDelay);
-		lastLap = System.currentTimeMillis() + Constants.gameStartDelay;
-		this.gInfo = gInfo;
-	}
-	
-	public void setDir(String name, int dir){
-		if(first != null) return;
-		if(name.equals(gInfo.hostName)) hostDir = dir;
-		else guestDir = dir;
-	}
+	Long lastCall;
 	
 	@Transient
 	Map<String, Long> laps = new HashMap<>();
 	
 	@Transient
-	long lastLap;
+	long previousGameTick = 0;
 	
+	@Transient
+	private Turn current;
+
+	@Transient
+	private int moved = 0;
+	@Transient
+	private String checksOut = "";
+	@Transient
+	boolean gameStarted = false;
 	
-	private boolean turnTimePassed(long lap) {
-		float coeff = 0.1f;
-		long deviation = (long)(coeff * lap);
-	    
-		//return lap >= gInfo.turnTimeMS - deviation && lap <= gInfo.decreaseTimeMS + deviation;
-		return lap > gInfo.turnTimeMS / 2;
+	public Game(GameInfo gInfo) {
+		gameTick = 0;
+		current = new Turn();
+		current.hostDir = 0;
+		current.guestDir = 2;
+		current.name = "[Empty]";
+		this.gInfo = gInfo;
 	}
 	
-	public Turn getTurn(Turn turn) {
-	    
-	    /* First player moved first, therefore the turn time has passed.
-	     * Second player moved second therefore a small amount of time after the first player turn has passed.
-	     * Other combinations are illegal.
-	     */
-	    
-	    //long lap = System.currentTimeMillis() - laps.get(turn.name);
-		long lap = System.currentTimeMillis() - lastLap;
-	    
-	    if((!turnTimePassed(lap) && first == null)||
-	       ( turnTimePassed(lap) && first != null) ){
-	    	log.warn("Skipping " + turn + " to adjust turn: turnTimePassed=" + turnTimePassed(lap) );
-	    	laps.put(turn.name, System.currentTimeMillis());
-	    	lastLap = System.currentTimeMillis();
-	    	return null;
-	    }
-	    
-	    laps.put(turn.name, System.currentTimeMillis());
-	    lastLap = System.currentTimeMillis();
-		
-	    /*
-	     * Turn starts -- init turn, first(player) and second(player)
-	     * Turn ends   -- assert(first!=player), give turn to second
-	     */
-	    
-	    if(current == null ) {
-	    	
-			current = new Turn(turn.name, turn.frogX, turn.frogY);
-			current.turnNr = turnNr++;
-			current.hostDir  = hostDir;
-			current.guestDir = guestDir;
+	public void setDir(String name, int dir){
+//		if(onHold) return;
+		if(name.equals(gInfo.hostName)) hostDir = dir;
+		else guestDir = dir;
+	}
+	@Transient
+	private long gameTick = System.currentTimeMillis();
+	double tollerance = 0.1;
+	@Transient
+	private String second;
+	@Transient
+	private boolean onHold, fConsume, sConsume;
+	@Transient
+	long fAwaitedAt, sAwaitedAt;
+	
+	private int toInt(boolean b) {
+		return b? 1: 0;
+	}
 
-			first  = turn.name;
+	public Turn consumeTurn(Turn t) {
+		current.sync = -1;
+		current.refresh();
+		current.name = t.name;
+		
+		String cS = "cs[i]";
+		String type;
+
+		if(current.isOver() || t.isOver()) {
+			current.over();
+		} else {
+			current.refresh();
+		}
 			
-			log.info(current + " checksum passed...");
-			checksum = turn.checksum;
-			return current;
-	    } else {
-	    	if(!first.equals(turn.name)) {
-	    		
-				Turn entry = new Turn(current);
-				entry.name = turn.name;
-				current = null;
-				first = null;
-				gInfo.turnTimeMS -= gInfo.decreaseTimeMS;
-				
-				log.info("... " + entry + " checksum matched:" + ((checksum == null) ? "no_checksum": checksum.equals(turn.checksum)));
-				checksum = turn.checksum;
-				return entry;	    		
-	    	}
-	    }
-		return null;
+			if(!fConsume && !sConsume) {
+			current.turnNr++;
+			current.frogX = t.frogX;
+			current.frogY = t.frogY;
+			current.hostDir = hostDir;
+			current.guestDir = guestDir;
+			current.checksum = t.checksum;
+			second = t.name.equals(gInfo.hostName)? gInfo.guestName: gInfo.hostName;
+			onHold = true;
+			if(t.name.equals(second)) sConsume = true;
+			else fConsume = true;
+			type = "f";
+		} else if(second != null && second.equals(t.name) && onHold) {
+			onHold = false;
+			if(t.name.equals(second)) fConsume = false;
+			else sConsume = false;
+			second = null;
+			cS = t.checksum.equals(current.checksum)? "cs[o]": "cs[_]";
+			type = "s";
+		} else {
+			current.idle();
+			type = "w";
+		}
+
+		if(second != null &&  second.equals(t.name))
+			current.sync = (System.currentTimeMillis() - gameTick);
+	    
+		log.info( type + "|"+(System.currentTimeMillis() - gameTick) + "\t\t" + toInt(fConsume) + "/"+toInt(sConsume)+ "/"+toInt(onHold)+"\t\t\t"+ current+"\t\t" + cS );
+		gameTick = System.currentTimeMillis();
+		
+		return current;
 	}
 	
 }

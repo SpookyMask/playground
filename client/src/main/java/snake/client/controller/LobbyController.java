@@ -11,7 +11,7 @@ import snake.client.model.comm.GameInfo;
 import snake.client.model.comm.User;
 import snake.client.view.LobbyView;
 
-public class LobbyController implements Controller {
+public class LobbyController {
 	private static LobbyController controller = null;
 	private static LobbyView view = null;
 

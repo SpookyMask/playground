@@ -10,12 +10,10 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.web.client.RestTemplate;
-
 import snake.client.Application;
 
 public class ClientConfig {
-	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 8080 \nplayer_name = random";
+	private static final String defaultConfig = "server_ip_address = localhost\nserver_port = 8080 \nplayer_name = random"; //"random": server will choose the name at random from a list
 	private static final Map<String, String> properties = new HashMap<>();
 	private static final Path file = Paths.get("config.txt");
 	

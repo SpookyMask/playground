@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 
 import org.springframework.stereotype.Component;
 
-import snake.client.controller.MultiplayerController;
+import snake.client.controller.IGameController;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 
@@ -21,6 +21,7 @@ public class GameView extends JFrame implements KeyListener {
 	public Snake host = null;
 	public Snake guest = null;
 	public Set<Position> frogs = new HashSet<>();
+	public IGameController controller;
 	
 	private GameView(){
 		initGUI();
@@ -69,7 +70,8 @@ public class GameView extends JFrame implements KeyListener {
         	dir = 3;
         else
         	return;
-        MultiplayerController.sendDirToServer(dir);
+
+        controller.setDir(dir);;
 	}
 
 	@Override
@@ -77,7 +79,8 @@ public class GameView extends JFrame implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
-	public static void activate(Set<Position> frogs, Snake host, Snake guest, int n, int m) {
+	public static void activate(IGameController c, Set<Position> frogs, Snake host, Snake guest, int n, int m) {
+		view.controller = c;
 		if(view == null) view = new GameView();
 		view.frogs = frogs;
 		view.host = host;

@@ -6,16 +6,15 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import snake.server.model.Game;
-import snake.server.model.comm.User;
 import snake.server.model.comm.GameInfo;
 import snake.server.model.comm.Turn;
+import snake.server.model.comm.User;
 import snake.server.model.repo.IDBService;
 
 @RestController
@@ -56,8 +55,8 @@ public class GameController {
     	Game game = runningGames.get(name);
     	game.gInfo.updateStartIn();
     	log.info("Game(" + game.gInfo.hostName + " vs. " + game.gInfo.guestName + "): " + 
-    	               "host game.gInfo.hostName is notified, game starts in " +
-    	               game.gInfo.startsIn/1000 + " " + game.gInfo.startsIn%1000);
+    	               "host" + game.gInfo.hostName + " is notified, game starts in " +
+    	               game.gInfo.startsIn + "ms");
     	return game.gInfo;
     }
 	
@@ -66,7 +65,6 @@ public class GameController {
     		         @RequestParam(value="dir") int dir) {
     	Game game = runningGames.get(name);
     	game.setDir(name, dir);
-    	log.warn("direction " + dir + " -> " + name);
     	return new Turn();
     }
 	
@@ -75,7 +73,7 @@ public class GameController {
     	Game game = runningGames.get(turn.name);
     	if(game == null) 
     		return null;
-    	return game.getTurn(turn);
+    	return game.consumeTurn(turn);
     }
 	
 	@GetMapping("over")

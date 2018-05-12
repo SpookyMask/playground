@@ -20,11 +20,36 @@ public class Turn {
 	public int turnNr;
 	public int hostDir, guestDir;
 	public int frogX, frogY;
-	public long lap;
 	public String checksum;
+	public long sync;
+	
+	private static enum Status{OK, IDLE, ОVER};
+	public Status status = Status.OK;
+	public boolean isOK() {
+		return status == Status.ОVER;
+	}
+	public boolean isOver() {
+		return status == Status.ОVER;
+	}
+	public boolean isIdle() {
+		return status == Status.IDLE;
+	}
+	public void refresh() {
+		status = Status.OK;
+	}
+	public void idle() {
+		status = Status.IDLE;
+	}
+	public void over() {
+		status = Status.ОVER;
+	}
 	
 	public Turn() {
 		
+	}
+	
+	public Turn(String n) {
+		name = n;
 	}
 	
 	public Turn( boolean init ) {
@@ -34,18 +59,14 @@ public class Turn {
 		frogX = -1;
 	}
 	
-	
-
-	public Turn(Turn turn) {
-		this.name = turn.name;
-		this.turnNr = turn.turnNr;
-		this.hostDir = turn.hostDir;
-		this.guestDir = turn.guestDir;
-		this.frogX = turn.frogX;
-		this.frogY = turn.frogY;
-		this.lap = turn.lap;
-		this.checksum = turn.checksum;
-	}
+	public Turn clone(){
+		try {
+			return (Turn) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}  
 	
 	public Turn(String name, int frogX, int frogY) {
 		this.name = name;
@@ -56,7 +77,7 @@ public class Turn {
 	@Override
 	public String toString() {
 		String frog = (frogX != -1)? " (" + frogX + "," + frogY + ")": "";
-		return turnNr + ". Turn [" + hostDir + ", " + guestDir + frog + "] " + name;
+		return turnNr + ". Turn [" + hostDir + ", " + guestDir + frog + "] " + name+"("+status+")";
 	}
 
 }

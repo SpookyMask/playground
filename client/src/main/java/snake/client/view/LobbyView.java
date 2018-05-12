@@ -16,14 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 import org.springframework.stereotype.Component;
 
-import snake.client.Application;
 import snake.client.controller.LobbyController;
 import snake.client.model.comm.GameInfo;
 import snake.client.model.comm.User;
@@ -44,7 +40,7 @@ public class LobbyView extends JFrame {
 	private LobbyView() {
 	    addWindowListener(new WindowAdapter() {
 	        public void windowClosing(WindowEvent e) {
-	            MenuView v = MenuView.activate();
+	            MenuView.activate();
 	            lobby.setVisible(false);
 	        }
 	      });

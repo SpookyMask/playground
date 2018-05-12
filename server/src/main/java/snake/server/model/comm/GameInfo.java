@@ -36,6 +36,7 @@ public class GameInfo {
 	
 	public void updateStartIn() {
 		startsIn = startsTimeStamp - System.currentTimeMillis();
+		if(startsIn < 0) startsIn = 0;
 	}
 	
 }

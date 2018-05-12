@@ -10,8 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.springframework.boot.autoconfigure.h2.H2ConsoleProperties.Settings;
-
 import snake.client.controller.SettingsController;
 import snake.client.model.comm.GameInfo;
 

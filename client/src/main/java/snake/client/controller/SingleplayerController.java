@@ -4,16 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.log4j.Logger;
+
 import snake.client.Application;
 import snake.client.model.comm.GameInfo;
-import snake.client.model.configs.Constants;
 import snake.client.model.game.Position;
 import snake.client.model.game.Snake;
 import snake.client.view.GameView;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class SingleplayerController extends Thread implements Controller {
+public class SingleplayerController extends Thread implements IGameController {
 	
 	final public static Logger log = Logger.getLogger(SingleplayerController.class);
 	
@@ -54,16 +53,14 @@ public class SingleplayerController extends Thread implements Controller {
 	    controller.gInfo = gInfo;
 	    controller.player = new Snake(controller.slot);
 	    controller.frogs = new HashSet<>();
-		GameView.activate(controller.frogs, controller.player, null, 
+		GameView.activate(controller, controller.frogs, controller.player, null, 
 				          controller.gInfo.sizeN, controller.gInfo.sizeM);
 		controller.start();
 	}
 	
-	public void onDirUpdate(int newDir) {}
-	
 	public int move(Snake snake) {
 		Position head = snake.stretch();
-		log.debug(turnNr + ". Snake stretches " + Constants.point[snake.getDir()] + "->" + head);
+//		log.debug(turnNr + ". Snake stretches " + Constants.point[snake.getDir()] + "->" + head);
 		if(head == null)
 			return -1;  //snake hits itself
 		if( !gInfo.noBorder && head.outside() )
@@ -116,5 +113,10 @@ public class SingleplayerController extends Thread implements Controller {
 		} while(turn() != -1);
 		view.setVisible(false);
 		MenuController.activate();
+	}
+
+	@Override
+	public void setDir(int d) {
+		player.setDir(d);
 	}
 }

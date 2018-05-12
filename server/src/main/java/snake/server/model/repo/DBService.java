@@ -1,15 +1,12 @@
 package snake.server.model.repo;
 
 import java.util.Optional;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import snake.server.model.Game;
-import snake.server.model.comm.Turn;
 import snake.server.model.comm.User;
-import snake.server.model.configs.Constants;
 
 @Service
 public class DBService implements IDBService {

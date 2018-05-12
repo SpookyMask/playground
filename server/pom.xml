@@ -4,7 +4,7 @@
 
   <groupId>snake</groupId>
   <artifactId>server</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -38,7 +38,7 @@
         <dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
-		    <version>5.1.46</version>
+		    <!-- <version>5.1.46</version> -->
 		</dependency>
        <dependency>
 			<groupId>log4j</groupId>

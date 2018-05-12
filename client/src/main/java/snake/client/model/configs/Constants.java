@@ -11,7 +11,4 @@ public class Constants {
 	public static long defaultDelay = 1300;
 	
 	public static String[] point = new String[]{"RIGHT", "UP", "LEFT", "DOWN"};
-	
-	//Check if only multiplayer is to be tested
-	public static boolean fastMulti = false;
 }
